@@ -19,20 +19,20 @@ selected_columns <- all_sheets |> select(all_of(columns_to_keep))
 ```{r}
 
 # Count missing values (NaN and 'n/a') in each column
-nan_counts <- colSums(is.na(selected_columns) | selected_columns == 'n/a')
+total_samples <- nrow(selected_columns)
+nan_counts <- colSums(is.na(selected_columns) | selected_columns == 'n/a' | selected_columns == 'na' | selected_columns == 'N/A' | selected_columns == 'NA')
+nan_percentages <- (nan_counts / total_samples) * 100
 
-
-# Create a data frame to store the counts
-nan_data <- data.frame(Column = names(nan_counts), NaNCount = nan_counts)
+# Create a data frame to store the percentages
+missing_data <- data.frame(Column = names(nan_percentages), MissingPercentage = nan_percentages)
 
 # Create a histogram
-ggplot(nan_data, aes(x = Column, y = NaNCount)) +
+ggplot(missing_data, aes(x = Column, y = MissingPercentage)) +
   geom_bar(stat = "identity", fill = "blue") +
-  labs(title = "Number of 'nan' Values in Each Column", x = "Column", y = "Count") +
+  labs(title = "Percentage of Missing Values in Each Column", x = "Column", y = "Percentage") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-```
 
-```{}
 ```
 
 ## Save cleaned data
