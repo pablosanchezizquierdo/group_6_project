@@ -1,5 +1,5 @@
 ---
-title: "Presentation"
+title: "Group 6: Microbial bioremediation of persistent organic pollutants (POP)"
 format: revealjs
 editor: visual
 ---
