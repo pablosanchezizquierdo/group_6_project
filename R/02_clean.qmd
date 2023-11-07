@@ -11,18 +11,6 @@ columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orth
 # Subset the 'all_sheets' data frame to keep only the specified columns
 selected_columns <- all_sheets |> select(all_of(columns_to_keep))
 
-# Define the path for the output .tsv file
-output_file_path <- "../data/genes_clean.tsv"
-
-# Save the subset data frame to a .tsv file
-write.table(selected_columns, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
-
-# Verify that the file has been saved
-if (file.exists(output_file_path)) {
-  cat("Data with selected columns has been saved to", output_file_path, "\n")
-} else {
-  cat("Failed to save the data with selected columns to", output_file_path, "\n")
-}
 
 ```
 
@@ -42,5 +30,25 @@ ggplot(nan_data, aes(x = Column, y = NaNCount)) +
   geom_bar(stat = "identity", fill = "blue") +
   labs(title = "Number of 'nan' Values in Each Column", x = "Column", y = "Count") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{}
+```
+
+## Save cleaned data
+
+```{r}
+# Define the path for the output .tsv file
+output_file_path <- "../data/genes_clean.tsv"
+
+# Save the subset data frame to a .tsv file
+write.table(selected_columns, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Verify that the file has been saved
+if (file.exists(output_file_path)) {
+  cat("Data with selected columns has been saved to", output_file_path, "\n")
+} else {
+  cat("Failed to save the data with selected columns to", output_file_path, "\n")
+}
 
 ```
