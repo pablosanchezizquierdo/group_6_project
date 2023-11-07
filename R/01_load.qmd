@@ -1,0 +1,35 @@
+---
+title: "01_load"
+format: html
+editor: visual
+---
+
+# Load raw data from the "Genes" dataset:
+```{r}
+# We create a function that reads all sheets from a given excel file:
+read_excel_sheets <- function(file_path) {
+  sheets <- excel_sheets(file_path)
+  map(sheets,
+      ~ read_excel(file_path, 
+                           sheet = .x))
+}
+
+# Now, we make a list of all files inside the "Genes" folder:
+folder_path <- "../data/_raw/Genes" 
+excel_files <- list.files(folder_path, 
+                          pattern = "\\.xlsx$", 
+                          full.names = TRUE)
+
+# Finally, we apply the read_excel_sheets function to every excel file in the excel_files list:
+all_sheets <- map(excel_files, 
+                  read_excel_sheets)
+
+# The final object is a list of lists of excel sheets data:
+all_sheets
+```
+
+# Join data into a single table:
+```{r}
+
+```
+
