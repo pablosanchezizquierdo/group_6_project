@@ -1,0 +1,13 @@
+---
+title: "00_all"
+format: html
+editor: visual
+---
+
+## Creating directories
+
+```{r}
+dir.create("../data/_raw", recursive = TRUE)
+dir.create("../results")
+dir.create("../doc")
+```
