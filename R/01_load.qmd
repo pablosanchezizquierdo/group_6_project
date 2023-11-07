@@ -5,6 +5,12 @@ editor: visual
 ---
 
 # Load raw data from the "Genes" dataset:
+The original data is structured in the following manner:
+- The "Genes" folder contains a number of excel files.
+- Each excel file corresponds to a persistant organic pollutant (POP) compound.
+- Each excel file contains a number of sheets.
+- Each excel sheet corresponds to a gene targeting bioremediation of said POP.
+- Each excel sheet contains 28 variables and a number of observations.
 ```{r}
 # We create a function that reads all sheets from a given excel file:
 read_excel_sheets <- function(file_path) {
@@ -24,12 +30,16 @@ excel_files <- list.files(folder_path,
 all_sheets <- map(excel_files, 
                   read_excel_sheets)
 
-# The final object is a list of lists of excel sheets data:
-all_sheets
 ```
+The final object is a list of lists of excel sheets data. The outer list contains filenames, the inner list contains file_sheets, and each sheet contains the variables and data.
+
 
 # Join data into a single table:
 ```{r}
+# Initialize the joined_data with the first sheet
+joined_data <- all_sheets[[1]][[1]]
 
+# Iterate through the remaining sheets and join them to the joined_data
+joined_data <- reduce(all_sheets[-1], ~ full_join(.x, .y))
 ```
 
