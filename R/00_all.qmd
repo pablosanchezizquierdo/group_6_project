@@ -4,7 +4,17 @@ format: html
 editor: visual
 ---
 
-## Creating directories
+# Packages
+```{r}
+#| message: false
+library("tidyverse")
+library("dplyr")
+library("stringr")
+library("tidyr")
+```
+
+
+# Creating directories
 
 ```{r}
 dir.create("../data/_raw", recursive = TRUE)
