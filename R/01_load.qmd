@@ -5,31 +5,37 @@ editor: visual
 ---
 
 # Load raw data from the "Genes" dataset:
+
 ```{r}
-# We create a function that reads all sheets from a given excel file:
+# Define a function to read all sheets from a given Excel file
 read_excel_sheets <- function(file_path) {
   sheets <- excel_sheets(file_path)
-  map(sheets,
-      ~ read_excel(file_path, 
-                           sheet = .x))
+  map(sheets, ~ read_excel(file_path, sheet = .x))
 }
 
-# Now, we make a list of all files inside the "Genes" folder:
-folder_path <- "../data/_raw/Genes" 
-excel_files <- list.files(folder_path, 
-                          pattern = "\\.xlsx$", 
-                          full.names = TRUE)
+# Define the folder path where your Excel files are located
+folder_path <- "../data/_raw/Genes"
+excel_files <- list.files(folder_path, pattern = "\\.xlsx$", full.names = TRUE)
 
-# Finally, we apply the read_excel_sheets function to every excel file in the excel_files list:
-all_sheets <- map(excel_files, 
-                  read_excel_sheets)
+# Read all sheets from all Excel files and remove the "PMID" column from each sheet
+all_sheets <- map(excel_files, read_excel_sheets) |> 
+  map(~ lapply(.x, function(df) df[,-which(names(df) == "PMID")])) |> 
+  flatten_df()
 
-# The final object is a list of lists of excel sheets data:
+# Now, 'all_sheets' contains all the data from different sheets in one table with the "PMID" column removed
 all_sheets
+
+# Define the path for the output .tsv file
+output_file_path <- "../data/all_sheets.tsv"
+
+# Save the 'all_sheets' data frame to a .tsv file
+write.table(all_sheets, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Verify that the file has been saved
+if (file.exists(output_file_path)) {
+  cat("Data has been saved to", output_file_path, "\n")
+} else {
+  cat("Failed to save the data to", output_file_path, "\n")
+}
+
 ```
-
-# Join data into a single table:
-```{r}
-
-```
-

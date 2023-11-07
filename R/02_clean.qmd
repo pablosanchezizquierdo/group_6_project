@@ -1,0 +1,46 @@
+---
+title: "02_clean"
+format: html
+editor: visual
+---
+
+```{r}
+# Define the columns you want to keep
+columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orthology", "Organism", "GenBankID", "Strain ID/Microorganism", "UniProt ID", "Protein ID", "Continent where study sampling was done (Collections)", "Country", "Isolation source", "Habitat notes")  
+
+# Subset the 'all_sheets' data frame to keep only the specified columns
+selected_columns <- all_sheets |> select(all_of(columns_to_keep))
+
+# Define the path for the output .tsv file
+output_file_path <- "../data/genes_clean.tsv"
+
+# Save the subset data frame to a .tsv file
+write.table(selected_columns, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Verify that the file has been saved
+if (file.exists(output_file_path)) {
+  cat("Data with selected columns has been saved to", output_file_path, "\n")
+} else {
+  cat("Failed to save the data with selected columns to", output_file_path, "\n")
+}
+
+```
+
+## Visualize how many NaN values we have
+
+```{r}
+
+# Count missing values (NaN and 'n/a') in each column
+nan_counts <- colSums(is.na(selected_columns) | selected_columns == 'n/a')
+
+
+# Create a data frame to store the counts
+nan_data <- data.frame(Column = names(nan_counts), NaNCount = nan_counts)
+
+# Create a histogram
+ggplot(nan_data, aes(x = Column, y = NaNCount)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  labs(title = "Number of 'nan' Values in Each Column", x = "Column", y = "Count") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
