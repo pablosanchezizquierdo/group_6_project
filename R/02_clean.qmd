@@ -1,0 +1,54 @@
+---
+title: "02_clean"
+format: html
+editor: visual
+---
+
+```{r}
+# Define the columns you want to keep
+columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orthology", "Organism", "GenBankID", "Strain ID/Microorganism", "UniProt ID", "Protein ID", "Continent where study sampling was done (Collections)", "Country", "Isolation source", "Habitat notes")  
+
+# Subset the 'all_sheets' data frame to keep only the specified columns
+selected_columns <- all_sheets |> select(all_of(columns_to_keep))
+
+
+```
+
+## Visualize how many NaN values we have
+
+```{r}
+
+# Count missing values (NaN and 'n/a') in each column
+total_samples <- nrow(selected_columns)
+nan_counts <- colSums(is.na(selected_columns) | selected_columns == 'n/a' | selected_columns == 'na' | selected_columns == 'N/A' | selected_columns == 'NA')
+nan_percentages <- (nan_counts / total_samples) * 100
+
+# Create a data frame to store the percentages
+missing_data <- data.frame(Column = names(nan_percentages), MissingPercentage = nan_percentages)
+
+# Create a histogram
+ggplot(missing_data, aes(x = Column, y = MissingPercentage)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  labs(title = "Percentage of Missing Values in Each Column", x = "Column", y = "Percentage") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+## Save cleaned data
+
+```{r}
+# Define the path for the output .tsv file
+output_file_path <- "../data/genes_clean.tsv"
+
+# Save the subset data frame to a .tsv file
+write.table(selected_columns, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Verify that the file has been saved
+if (file.exists(output_file_path)) {
+  cat("Data with selected columns has been saved to", output_file_path, "\n")
+} else {
+  cat("Failed to save the data with selected columns to", output_file_path, "\n")
+}
+
+```
