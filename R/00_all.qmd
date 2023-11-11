@@ -5,6 +5,7 @@ editor: visual
 ---
 
 # Packages
+
 ```{r}
 #| message: false
 library("tidyverse")
@@ -12,7 +13,6 @@ library("dplyr")
 library("stringr")
 library("tidyr")
 ```
-
 
 # Creating directories
 
