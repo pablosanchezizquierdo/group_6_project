@@ -12,6 +12,8 @@ library("tidyverse")
 library("dplyr")
 library("stringr")
 library("tidyr")
+library("readxl")
+library("purrr")
 ```
 
 # Creating directories
