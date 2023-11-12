@@ -108,13 +108,6 @@ Now we have only 174 unique gene names.
 
 ```{r}
 # Finally, we substitute the gene name in the data set, with the corresponding gene name from our tibble so they all get standardized:
-
-selected_columns <- selected_columns %>%
-  mutate(`Encoding Gene` = str_replace_all(tolower(selected_columns$`Encoding Gene`), setNames(unique_values_EcondingGene_clean$`Encoding Gene`, tolower(unique_values_EcondingGene_clean$`Encoding Gene`))))
-selected_columns
-?str_replace_all
-
-#maybe you don't have to replace, just create a new column where if it finds a match writes the new gene code
 ```
 
 
