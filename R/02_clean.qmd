@@ -54,7 +54,7 @@ It is not that straightforward, though. We have some complexities: - There are a
 How we'll deal with this: - We'll first extract a tibble with the unique gene names in the data set. - We'll work on this tibble. - Then, we'll substitute the names in the data set with the corresponding unique names in the tibble.
 
 ```{r}
-# First, we extract all unique gene names into a single tibble:
+# First, let's see how many different gene codes we have before format standardization:
 unique_values_EcondingGene <- selected_columns |> 
   select("Encoding Gene") |> 
   distinct() 
@@ -64,51 +64,36 @@ unique_values_EcondingGene
 There are 316 unique gene names at the beggining.
 
 ```{r}
-# We'll separate the previous tibble into 2 where one will contain all gene names that should follow the 4-letter code, and another tibble with all the gene names that do not follow that system.
-
-
-
 # Some variables we need:
 desired_length <- c(3,4,5,6)
-less6Char_No4L <- tibble(`Encoding Gene` = c('PA2086', 'PcCYP', 'RDases'))
 less6Char_No4L_list <- c('PA2086', 'PcCYP', 'RDases')
-more6Char_4L <- tibble(`Encoding Gene` = c('bphA1_1', 'bphA1_2', 'bphA2_1', 'bphA2_2', 'cprA-like', 'bphX0 (BphK)', 'bphX1 (BphK)', 'bphX2 (BphK)', 'bphX3 (BphK)'))
 more6Char_4L_list <- c('bphA1_1', 'bphA1_2', 'bphA2_1', 'bphA2_2', 'cprA-like', 'bphX0 (BphK)', 'bphX1 (BphK)', 'bphX2 (BphK)', 'bphX3 (BphK)')
 
 
 
-# Tibble with the 4-Letter code gene names:
-unique_values_EcondingGene_4L <- unique_values_EcondingGene |> 
-  filter(nchar(`Encoding Gene`) %in% desired_length) |> 
-  filter(!(`Encoding Gene` %in% less6Char_No4L_list)) |> 
-  bind_rows(more6Char_4L)
-
-# Here we make the gene names be actually 4-letter coded and with the correct format (Yes, we are dropping variants of genes as if they were the same but I think it is fine to make this assumpion for the project)
-unique_values_EcondingGene_4L <- unique_values_EcondingGene_4L |> 
-  mutate(`Encoding Gene` = str_c(tolower(str_sub(`Encoding Gene`, 1, 1)),
-                                 str_sub(`Encoding Gene`, 2, 3),
-                                 toupper(str_sub(`Encoding Gene`, 4, 4)))) |> distinct()
-
-
-
-# Tibble with the NO 4-Letter code gene names:
-unique_values_EcondingGene_No4L <- unique_values_EcondingGene |> 
-  filter(!(nchar(`Encoding Gene`) %in% desired_length)) |> 
-  filter(!(`Encoding Gene` %in% more6Char_4L_list)) |> 
-  bind_rows(less6Char_No4L)
-
-
-
-# Now we join both tibbles in one:
-unique_values_EcondingGene_clean <- bind_rows(unique_values_EcondingGene_4L,
-                                              unique_values_EcondingGene_No4L)
-unique_values_EcondingGene_clean
+# We mutate the names:
+selected_columns$`Encoding Gene` <- selected_columns |> 
+  select(`Encoding Gene`) |> 
+  mutate(`Encoding Gene` = ifelse(
+    (nchar(`Encoding Gene`) %in% desired_length &
+    !(`Encoding Gene` %in% less6Char_No4L_list)) |
+    (`Encoding Gene` %in% more6Char_4L_list),
+                                  str_c(tolower(str_sub(`Encoding Gene`, 
+                                                        1, 
+                                                        3)),
+                                        toupper(str_sub(`Encoding Gene`, 
+                                                        4, 
+                                                        4))),
+                                  `Encoding Gene`))
 ```
 
-Now we have only 174 unique gene names.
 
 ```{r}
-# Finally, we substitute the gene name in the data set, with the corresponding gene name from our tibble so they all get standardized:
+# Now, let's see how many different gene codes we have after format standardization:
+unique_values_EcondingGene_clean <- selected_columns |> 
+  select("Encoding Gene") |> 
+  distinct() 
+unique_values_EcondingGene_clean
 ```
 
 ### Continent:
