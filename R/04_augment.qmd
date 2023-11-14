@@ -19,7 +19,7 @@ Protein sequences extracted from the raw fasta file "protein_seqs.fasta" are add
 ## Load clean dataset from step 2
 
 ```{r}
-tsv_file <- "../data/genes_clean.tsv"
+tsv_file <- "../data/clean_data.tsv"
 genes_clean <- read_tsv(tsv_file)
 ```
 
@@ -50,4 +50,3 @@ Join both dataframes using the Protein ID matches to incorporte the sequence col
 ```{r}
 data_augmented <- left_join(genes_clean, seq_df, by = "Protein ID")
 ```
-

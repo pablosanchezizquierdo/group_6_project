@@ -1,0 +1,32 @@
+---
+title: "05_analysis"
+format: html
+editor: visual
+---
+
+### Extract a vector of sequences
+
+```{r}
+
+# Split the dataset based on compound name
+compound_lists <- data_augmented |>
+  filter(!is.na(Sequence)) |> 
+  group_by(`Compound Name`) |> 
+  summarise(ProteinSequences = list(Sequence))
+
+# Print or use the list of sequences for each compound
+print(compound_lists)
+
+```
+
+```{r}
+# Perform MSA on each list of sequences
+aligned_compounds <- compound_lists |> 
+  mutate(AlignedSequences = map(ProteinSequences, ~msa(.x)))
+
+# Print or use the aligned sequences for each compound
+print(aligned_compounds)
+
+```
+
+
