@@ -4,14 +4,9 @@ format: html
 editor: visual
 ---
 
-# Load raw data from the "Genes" dataset:
+# Load raw data from the "Genes" dataset and join all datasets:
 
-The original data is structured in the following manner: 
-- The "Genes" folder contains a number of excel files. 
-- Each excel file corresponds to a persistant organic pollutant (POP) compound. 
-- Each excel file contains a number of sheets. 
-- Each excel sheet corresponds to a gene targeting bioremediation of said POP. 
-- Each excel sheet contains 28 variables and a number of observations.
+The original data is structured in the following manner: - The "Genes" folder contains a number of excel files. - Each excel file corresponds to a persistant organic pollutant (POP) compound. - Each excel file contains a number of sheets. - Each excel sheet corresponds to a gene targeting bioremediation of said POP. - Each excel sheet contains 28 variables and a number of observations.
 
 ```{r}
 # Define a function to read all sheets from a given Excel file
@@ -32,13 +27,13 @@ all_sheets <- map(excel_files, read_excel_sheets) |>
 
 The final object is a list of lists of excel sheets data. The outer list contains filenames, the inner list contains file_sheets, and each sheet contains the variables and data.
 
-# Join data into a single table:
+# Save data into a single table:
 
 ```{r}
 # Initialize the joined_data with the first sheet
-joined_data <- all_sheets[[1]][[1]]
+#joined_data <- all_sheets[[1]][[1]]
 # Now, 'all_sheets' contains all the data from different sheets in one table with the "PMID" column removed
-all_sheets
+#all_sheets
 
 # Define the path for the output .tsv file
 output_file_path <- "../data/all_sheets.tsv"
@@ -54,5 +49,5 @@ if (file.exists(output_file_path)) {
 }
 
 # Iterate through the remaining sheets and join them to the joined_data
-joined_data <- reduce(all_sheets[-1], ~ full_join(.x, .y))
+#joined_data <- reduce(all_sheets[-1], ~ full_join(.x, .y))
 ```

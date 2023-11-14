@@ -4,9 +4,10 @@ format: html
 editor: visual
 ---
 
-
 ## Select key variables (columns)
+
 We can dispense with many variables in this data set containing information that we will not be working with like the links and the scientific article information for each observation.
+
 ```{r}
 # Define the columns you want to keep
 columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orthology", "Organism", "GenBankID", "Strain ID/Microorganism", "UniProt ID", "Protein ID", "Continent where study sampling was done (Collections)", "Country", "Isolation source", "Habitat notes")  
@@ -18,7 +19,9 @@ selected_columns <- all_sheets |> select(all_of(columns_to_keep))
 ```
 
 ## Visualize how many NaN values we have
+
 For the moment, it is very difficult to assess whether to drop whole variables because of the presence of a NaN value without loosing to much information, therefore, first, we can look at which variables are the ones containing the most NaN values and assess whether it is acceptable to lose them.
+
 ```{r}
 
 # Count missing values (NaN and 'n/a') in each column
@@ -37,22 +40,18 @@ ggplot(missing_data, aes(x = Column, y = MissingPercentage)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
+
 We can see how the variables with data related to location and the "Protein ID" and the "UniProt ID" variable are the ones with the most number of NaN values. For now, we can leave it like this. Eventually, we can create a unique identifier for each unique observation and then reassess the NaN situation.
 
 ## Fixing naming conventions
+
 ### Encoding Gene:
+
 For the naming convention, we are going to reduce names to the standard 4 letter code, when possible, where the first 3 letters are in lower-case and last letter in upper-case.
 
-It is not that straightforward, though. We have some complexities:
-- There are already correct 4-letter code gene names.
-- There are 4-letter code names with the first letter in upper-case.
-- There are 4-letter code names with variants (extra characters in the gene name)
-- There are gene names that do not follow the 4-letter code system.
+It is not that straightforward, though. We have some complexities: - There are already correct 4-letter code gene names. - There are 4-letter code names with the first letter in upper-case. - There are 4-letter code names with variants (extra characters in the gene name) - There are gene names that do not follow the 4-letter code system.
 
-How we'll deal with this:
-- We'll first extract a tibble with the unique gene names in the data set.
-- We'll work on this tibble.
-- Then, we'll substitute the names in the data set with the corresponding unique names in the tibble.
+How we'll deal with this: - We'll first extract a tibble with the unique gene names in the data set. - We'll work on this tibble. - Then, we'll substitute the names in the data set with the corresponding unique names in the tibble.
 
 ```{r}
 # First, we extract all unique gene names into a single tibble:
@@ -61,6 +60,7 @@ unique_values_EcondingGene <- selected_columns |>
   distinct() 
 unique_values_EcondingGene
 ```
+
 There are 316 unique gene names at the beggining.
 
 ```{r}
@@ -104,17 +104,16 @@ unique_values_EcondingGene_clean <- bind_rows(unique_values_EcondingGene_4L,
                                               unique_values_EcondingGene_No4L)
 unique_values_EcondingGene_clean
 ```
-Now we have only 174 unique gene names. 
+
+Now we have only 174 unique gene names.
 
 ```{r}
 # Finally, we substitute the gene name in the data set, with the corresponding gene name from our tibble so they all get standardized:
 ```
 
-
 ### Continent:
+
 ### Country:
-
-
 
 ## Save cleaned data
 
