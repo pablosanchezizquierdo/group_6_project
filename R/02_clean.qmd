@@ -65,11 +65,9 @@ How we'll deal with this:
 unique_values_EcondingGene <- selected_columns |> 
   select("Encoding Gene") |> 
   distinct() 
+
 count(unique_values_EcondingGene)
 ```
-
-There are 316 unique gene names at the beggining.
-
 ```{r}
 # Some variables we need:
 desired_length <- c(3,4,5,6)
@@ -79,8 +77,7 @@ more6Char_4L_list <- c('bphA1_1', 'bphA1_2', 'bphA2_1', 'bphA2_2', 'cprA-like', 
 
 
 # We mutate the names:
-selected_columns$`Encoding Gene` <- selected_columns |> 
-  select(`Encoding Gene`) |> 
+selected_columns <- selected_columns |> 
   mutate(`Encoding Gene` = ifelse(
     (nchar(`Encoding Gene`) %in% desired_length &
     !(`Encoding Gene` %in% less6Char_No4L_list)) |
@@ -103,6 +100,7 @@ count(unique_values_EcondingGene_clean)
 ```
 
 ### Continent:
+
 
 ### Country:
 
