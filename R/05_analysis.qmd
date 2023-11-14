@@ -20,12 +20,28 @@ print(compound_lists)
 ```
 
 ```{r}
+
 # Perform MSA on each list of sequences
 aligned_compounds <- compound_lists |> 
   mutate(AlignedSequences = map(ProteinSequences, ~msa(.x)))
 
 # Print or use the aligned sequences for each compound
 print(aligned_compounds)
+
+# Define a function to perform MSA and extract consensus
+align_and_extract_consensus <- function(sequences) {
+  aligned_sequences <- msa(sequences)
+  consensus_sequence <- consensus(aligned_sequences)
+  return(consensus_sequence)
+}
+
+# Get conserved regions
+conserved_regions <- compound_lists |> 
+  mutate(ConservedRegion = map(ProteinSequences, align_and_extract_consensus))
+
+# Print or use the conserved region for each compound
+print(conserved_regions)
+
 
 ```
 
