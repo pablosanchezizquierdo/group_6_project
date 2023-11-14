@@ -29,13 +29,26 @@ selected_columns <- all_sheets |> select(all_of(columns_to_keep))
 
 ## Visualize how many NaN values we have
 
+First, let's standardize all NA value types (NA, N/A, na, n/a) into a single type (NA)
+
+```{r}
+selected_columns <- selected_columns |> 
+  mutate(across(everything(),
+                ~ifelse(. %in% c("NA", 
+                                 "N/A", 
+                                 "na", 
+                                 "n/a"), 
+                        NA, 
+                        .)))
+```
+
 For the moment, it is very difficult to assess whether to drop whole variables because of the presence of a NaN value without loosing to much information, therefore, first, we can look at which variables are the ones containing the most NaN values and assess whether it is acceptable to lose them.
 
 ```{r}
 
 # Count missing values (NaN and 'n/a') in each column
 total_samples <- nrow(selected_columns)
-nan_counts <- colSums(is.na(selected_columns) | selected_columns == 'n/a' | selected_columns == 'na' | selected_columns == 'N/A' | selected_columns == 'NA')
+nan_counts <- colSums(is.na(selected_columns))
 nan_percentages <- (nan_counts / total_samples) * 100
 
 # Create a data frame to store the percentages
@@ -103,6 +116,34 @@ count(unique_values_EcondingGene_clean)
 ```
 
 ### Continent:
+
+```{r}
+selected_columns <-selected_columns |> 
+  rename(Continent = `Continent where study sampling was done (Collections)`)
+```
+
+```{r}
+# First, let's see how many different Continents we have before name standardization:
+unique_values_Continent <- selected_columns |> 
+  select("Continent") |> 
+  distinct() 
+
+
+unique_values_Continent
+
+selected_columns |> 
+  ggplot(mapping = aes(x = Continent,
+                       fill = Continent)) +
+  geom_bar(binwidth = 1, color = "black", alpha = 0.7) +
+  labs(title = "Observation count for each continent",
+       x = "Continent",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.text = element_text(size = 8),
+        legend.position = "bottom") +
+  guides(fill = guide_legend(nrow = 5))
+  
+```
 
 ### Country:
 
