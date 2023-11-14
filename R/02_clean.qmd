@@ -129,10 +129,14 @@ selected_columns |>
   ggplot(mapping = aes(x = Continent,
                        fill = Continent)) +
   geom_bar(binwidth = 1, color = "black", alpha = 0.7) +
-  labs(title = "Histogram of Your Variable",
+  labs(title = "Observation count for each continent",
        x = "Continent",
        y = "Frequency") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.text = element_text(size = 8),
+        legend.position = "bottom") +
+  guides(fill = guide_legend(nrow = 5))
+  
 ```
 
 ### Country:
