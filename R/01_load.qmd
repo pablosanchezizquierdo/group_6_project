@@ -23,6 +23,9 @@ excel_files <- list.files(folder_path, pattern = "\\.xlsx$", full.names = TRUE)
 all_sheets <- map(excel_files, read_excel_sheets) |> 
   map(~ lapply(.x, function(df) df[,-which(names(df) == "PMID")])) |> 
   flatten_df()
+
+all_sheets <- all_sheets |> distinct()
+
 ```
 
 The final object is a list of lists of excel sheets data. The outer list contains filenames, the inner list contains file_sheets, and each sheet contains the variables and data.
@@ -30,16 +33,11 @@ The final object is a list of lists of excel sheets data. The outer list contain
 # Save data into a single table:
 
 ```{r}
-# Initialize the joined_data with the first sheet
-#joined_data <- all_sheets[[1]][[1]]
-# Now, 'all_sheets' contains all the data from different sheets in one table with the "PMID" column removed
-#all_sheets
-
 # Define the path for the output .tsv file
 output_file_path <- "../data/all_sheets.tsv"
 
 # Save the 'all_sheets' data frame to a .tsv file
-write.table(all_sheets, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+write_delim(all_sheets, file = output_file_path, delim = "\t", col_names = TRUE)
 
 # Verify that the file has been saved
 if (file.exists(output_file_path)) {
@@ -47,7 +45,4 @@ if (file.exists(output_file_path)) {
 } else {
   cat("Failed to save the data to", output_file_path, "\n")
 }
-
-# Iterate through the remaining sheets and join them to the joined_data
-#joined_data <- reduce(all_sheets[-1], ~ full_join(.x, .y))
 ```

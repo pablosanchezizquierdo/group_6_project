@@ -4,6 +4,15 @@ format: html
 editor: visual
 ---
 
+## Get data
+
+```{r}
+# Read TSV file into a data frame
+all_sheets <- read_delim("../data/all_sheets.tsv", delim = "\t")
+
+
+```
+
 ## Select key variables (columns)
 
 We can dispense with many variables in this data set containing information that we will not be working with like the links and the scientific article information for each observation.
@@ -49,16 +58,9 @@ We can see how the variables with data related to location and the "Protein ID" 
 
 For the naming convention, we are going to reduce names to the standard 4 letter code, when possible, where the first 3 letters are in lower-case and last letter in upper-case.
 
-It is not that straightforward, though. We have some complexities: 
-- There are already correct 4-letter code gene names. 
-- There are 4-letter code names with the first letter in upper-case. 
-- There are 4-letter code names with variants (extra characters in the gene name) 
-- There are gene names that do not follow the 4-letter code system.
+It is not that straightforward, though. We have some complexities: - There are already correct 4-letter code gene names. - There are 4-letter code names with the first letter in upper-case. - There are 4-letter code names with variants (extra characters in the gene name) - There are gene names that do not follow the 4-letter code system.
 
-How we'll deal with this: 
-- We'll mutate the column values depending on a set of conditions. 
-- For gene codes following the 4-letter code, we'll take the first 4 characters and make the first 3 in lower-case and the last one in upper-case. (We'll account for variables of the same gene as the same gene. e.g. linA, LinA, linA1, linA_2 will all be linA)
-- For gene codes not following the 4-letter code, we'll leave the code as it is.
+How we'll deal with this: - We'll mutate the column values depending on a set of conditions. - For gene codes following the 4-letter code, we'll take the first 4 characters and make the first 3 in lower-case and the last one in upper-case. (We'll account for variables of the same gene as the same gene. e.g. linA, LinA, linA1, linA_2 will all be linA) - For gene codes not following the 4-letter code, we'll leave the code as it is.
 
 ```{r}
 # First, let's see how many different gene codes we have before format standardization:
@@ -68,6 +70,7 @@ unique_values_EcondingGene <- selected_columns |>
 
 count(unique_values_EcondingGene)
 ```
+
 ```{r}
 # Some variables we need:
 desired_length <- c(3,4,5,6)
@@ -101,14 +104,13 @@ count(unique_values_EcondingGene_clean)
 
 ### Continent:
 
-
 ### Country:
 
 ## Save cleaned data
 
 ```{r}
 # Define the path for the output .tsv file
-output_file_path <- "../data/genes_clean.tsv"
+output_file_path <- "../data/clean_data.tsv"
 
 # Save the subset data frame to a .tsv file
 write.table(selected_columns, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
