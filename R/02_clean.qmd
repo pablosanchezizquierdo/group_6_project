@@ -49,16 +49,23 @@ We can see how the variables with data related to location and the "Protein ID" 
 
 For the naming convention, we are going to reduce names to the standard 4 letter code, when possible, where the first 3 letters are in lower-case and last letter in upper-case.
 
-It is not that straightforward, though. We have some complexities: - There are already correct 4-letter code gene names. - There are 4-letter code names with the first letter in upper-case. - There are 4-letter code names with variants (extra characters in the gene name) - There are gene names that do not follow the 4-letter code system.
+It is not that straightforward, though. We have some complexities: 
+- There are already correct 4-letter code gene names. 
+- There are 4-letter code names with the first letter in upper-case. 
+- There are 4-letter code names with variants (extra characters in the gene name) 
+- There are gene names that do not follow the 4-letter code system.
 
-How we'll deal with this: - We'll first extract a tibble with the unique gene names in the data set. - We'll work on this tibble. - Then, we'll substitute the names in the data set with the corresponding unique names in the tibble.
+How we'll deal with this: 
+- We'll mutate the column values depending on a set of conditions. 
+- For gene codes following the 4-letter code, we'll take the first 4 characters and make the first 3 in lower-case and the last one in upper-case. (We'll account for variables of the same gene as the same gene. e.g. linA, LinA, linA1, linA_2 will all be linA)
+- For gene codes not following the 4-letter code, we'll leave the code as it is.
 
 ```{r}
 # First, let's see how many different gene codes we have before format standardization:
 unique_values_EcondingGene <- selected_columns |> 
   select("Encoding Gene") |> 
   distinct() 
-unique_values_EcondingGene
+count(unique_values_EcondingGene)
 ```
 
 There are 316 unique gene names at the beggining.
@@ -87,13 +94,12 @@ selected_columns$`Encoding Gene` <- selected_columns |>
                                   `Encoding Gene`))
 ```
 
-
 ```{r}
 # Now, let's see how many different gene codes we have after format standardization:
 unique_values_EcondingGene_clean <- selected_columns |> 
   select("Encoding Gene") |> 
   distinct() 
-unique_values_EcondingGene_clean
+count(unique_values_EcondingGene_clean)
 ```
 
 ### Continent:
