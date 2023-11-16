@@ -52,14 +52,20 @@ nan_counts <- colSums(is.na(selected_columns))
 nan_percentages <- (nan_counts / total_samples) * 100
 
 # Create a data frame to store the percentages
-missing_data <- data.frame(Column = names(nan_percentages), MissingPercentage = nan_percentages)
+missing_data <- data.frame(Column = names(nan_percentages), 
+                           MissingPercentage = nan_percentages)
 
 # Create a histogram
-ggplot(missing_data, aes(x = Column, y = MissingPercentage)) +
+ggplot(missing_data, 
+       aes(x = Column, 
+           y = MissingPercentage)) +
   geom_bar(stat = "identity", fill = "blue") +
-  labs(title = "Percentage of Missing Values in Each Column", x = "Column", y = "Percentage") +
+  labs(title = "Percentage of Missing Values in Each Column", 
+       x = "Column", 
+       y = "Percentage") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, 
+                                   hjust = 1))
 
 ```
 
@@ -119,7 +125,7 @@ count(unique_values_EcondingGene_clean)
 
 ```{r}
 selected_columns <-selected_columns |> 
-  rename(Continent = `Continent where study sampling was done (Collections)`)
+  rename(`Continent where study sampling was done (Collections)` = 'Continent')
 ```
 
 ```{r}
@@ -134,7 +140,7 @@ unique_values_Continent
 selected_columns |> 
   ggplot(mapping = aes(x = Continent,
                        fill = Continent)) +
-  geom_bar(binwidth = 1, color = "black", alpha = 0.7) +
+  geom_bar(color = "black", alpha = 0.7) +
   labs(title = "Observation count for each continent",
        x = "Continent",
        y = "Frequency") +
@@ -143,6 +149,59 @@ selected_columns |>
         legend.position = "bottom") +
   guides(fill = guide_legend(nrow = 5))
   
+```
+Now, there are a few redundancies in continents names. Also, we should try to keep only the 7 continents and the oceans. 
+
+Changes to be made:
+- "Mediterranean sea" & "Mediterranean Sea" should be part of the "Atlantic Ocean".
+- Geographically, the "Middle East" is an ambiguous region in terms of continent. It encompasses 3 continents: Asia, Europe and Africa, so the continent should be decided by the country variable.
+- "Central America" will be considered part of "North America"
+- "Northern Atlantic Ocean" is part of the "Atlantic Ocean"
+- "South Pacific Ocean" is part of the "Pacific Ocean"
+- "South America, Europe" should be decided by the country variable.
+
+```{r}
+# Let's see about the "Middle East" countries:
+selected_columns |> 
+  select(c('Continent', 'Country')) |> 
+  filter(Continent == 'Middle East')
+
+# Let's see about the "South America, Europe" countries:
+selected_columns |> 
+  select(c('Continent', 'Country')) |> 
+  filter(Continent == 'South America, Europe')
+```
+
+
+```{r}
+# Sample conditions list
+conditions_list <- data.frame(
+  FromContinent = c("Mediterranean sea", 
+                    "Mediterranean Sea", 
+                    "Northern Atlantic Ocean", 
+                    "Middle East", 
+                    "Central America", 
+                    "Southern Pacific Ocean", 
+                    "South America, Europe"),
+  ToContinent = c("Atlantic Ocean", 
+                  "Atlantic Ocean",
+                  "Atlantic Ocean",
+                  "Asia",
+                  "North America",
+                  "Pacific Ocean",
+                  "South America, Europe"))
+
+# Join the data frame with the conditions list and update values in "Continent"
+selected_columns <- selected_columns %>%
+  left_join(conditions_list, 
+            by = c("Continent" = "FromContinent")) |> 
+  mutate(Continent = ifelse(ToContinent == "South America, Europe", 
+                            NA, 
+                            ifelse(!is.na(ToContinent),
+                                   ToContinent, 
+                                   Continent))) |> 
+  select(-ToContinent)
+
 ```
 
 ### Country:
