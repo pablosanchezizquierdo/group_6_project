@@ -4,9 +4,10 @@ format: html
 editor: visual
 ---
 
-### Extract a vector of sequences
+
 
 ```{r}
+### Extract a vector of sequences
 
 # Split the dataset based on compound name
 compound_lists <- data_augmented |>
@@ -19,28 +20,110 @@ print(compound_lists)
 
 ```
 
+
 ```{r}
+library("ggseqlogo")
 
 # Perform MSA on each list of sequences
-aligned_compounds <- compound_lists |> 
-  mutate(AlignedSequences = map(ProteinSequences, ~msa(.x)))
+aligned_compounds <- compound_lists |>
+  filter(map_lgl(ProteinSequences, ~length(.x) < 200)) |> 
+  mutate(AlignedSequences = map(ProteinSequences, ~msa(.x, type = "protein")))
 
-# Print or use the aligned sequences for each compound
-print(aligned_compounds)
+print(aligned_compounds$AlignedSequences)
 
-# Define a function to perform MSA and extract consensus
-align_and_extract_consensus <- function(sequences) {
-  aligned_sequences <- msa(sequences)
-  consensus_sequence <- consensus(aligned_sequences)
-  return(consensus_sequence)
+```
+### A partir d'aqui son proves que he fet Lo de amunt funciona
+
+```{r}
+
+# Function to extract 9-mers from the aligned sequence
+extract_9mers <- function(alignment, positions) {
+  s2 <- unname(as.character(alignment))
+  lapply(positions, function(pos) toString(s2[(pos - 4):(pos + 4)]))
 }
 
-# Get conserved regions
-conserved_regions <- compound_lists |> 
-  mutate(ConservedRegion = map(ProteinSequences, align_and_extract_consensus))
+# Perform MSA on each list of sequences
+aligned_compounds <- compound_lists %>%
+  filter(map_lgl(ProteinSequences, ~length(.x) == 168)) %>%
+  mutate(
+    AlignedSequences = map(ProteinSequences, ~msa(.x, type = "protein")),
+    Conserved9mers = map(AlignedSequences, ~{
+      consensus <- consensusMatrix(.x)
+      most_conserved_positions <- which(consensus >= 0.5)  # You can adjust the threshold as needed
+      # Extract 9-mers around the most conserved positions
+      extract_9mers(.x, most_conserved_positions)
+    })
+  )
 
-# Print or use the conserved region for each compound
-print(conserved_regions)
+# Print or use the aligned sequences and most conserved 9-mers for each compound
+print(aligned_compounds)
+```
+```{r}
+# Print the conserved 9-mers for each compound
+Conserved9mers <- aligned_compounds %>%
+  select(`Compound Name`, Conserved9mers) %>%
+  unnest(Conserved9mers)
+
+```
+
+```{r}
+
+# Function to extract the most conserved 9-mer from the aligned sequence
+extract_most_conserved_9mer <- function(alignment, positions) {
+  s2 <- unname(as.character(alignment))
+  if (length(positions) > 0) {
+    most_conserved_position <- positions[which.max(consensusMatrix(alignment)[positions])]
+    return(toString(s2[(most_conserved_position - 4):(most_conserved_position + 4)]))
+  } else {
+    return(NA)
+  }
+}
+
+# Perform MSA on each list of sequences
+aligned_compounds <- compound_lists %>%
+  filter(map_lgl(ProteinSequences, ~length(.x) < 168)) %>%
+  mutate(
+    AlignedSequences = map(ProteinSequences, ~msa(.x, type = "protein")),
+    Conserved9mers = map(AlignedSequences, ~{
+      consensus <- consensusMatrix(.x)
+      most_conserved_positions <- which(consensus >= 0.5)  # You can adjust the threshold as needed
+      # Extract the most conserved 9-mer around the most conserved position
+      extract_most_conserved_9mer(.x, most_conserved_positions)
+    })
+  ) %>%
+  select(`Compound Name`, ProteinSequences, Conserved9mers) %>%
+  unnest(ProteinSequences, Conserved9mers)
+
+# Print the conserved 9-mers for each sequence and compound
+print(aligned_compounds)
+
+
+```
+
+
+```{r}
+
+library(Biostrings)
+library(dplyr)
+
+# Assuming your dataset is named 'aligned_compounds' and the second column is named 'ProteinSequences'
+aligned_compounds <- aligned_compounds %>%
+  mutate(conserved_aa = map_chr(AlignedSequences, ~{
+    # Create a AAStringSet object from the sequences
+    aa_strings <- AAStringSet(.x)
+    
+    # Create a consensus matrix from the AAStringSet object
+    consensus_matrix <- consensusMatrix(aa_strings)
+    
+    # Extract the 9 most conserved amino acids from the consensus matrix
+    conserved_aa <- names(sort(consensus_matrix, decreasing = TRUE)[1:9])
+    
+    # Return the 9 most conserved amino acids as a string
+    return(paste(conserved_aa, collapse = ","))
+  }))
+
+# Print the updated dataset
+print(aligned_compounds$conserved_aa)
 
 
 ```
