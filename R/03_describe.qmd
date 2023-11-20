@@ -100,3 +100,26 @@ plot4 <- ggplot(data_clean, aes(x = `Compound Name`, fill = `Encoding Gene`)) +
 # Save the plot as a PNG file
 ggsave("../results/genes_vs_compounds_stacked_plot.png", plot4, width = 10, height = 6, dpi = 300)
 ```
+
+```{r}
+# Stacked bar chart of countries across different organisms
+plot5 <- ggplot(data_clean, aes(x = Organism, fill = `Country`)) +
+  geom_bar(position = "stack") +
+  labs(title = "Country Distribution Across Organisms", x = "Organism", y = "Count") +
+  theme_minimal() + 
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1, size=6),
+    axis.text.y = element_text(size=6),
+    plot.title = element_text(size = 10),
+    axis.title.x = element_text(size = 8),  # Adjust the size of the x-axis label
+    axis.title.y = element_text(size = 8),  # Adjust the size of the y-axis label
+    legend.position = "bottom",
+    legend.box = "vertical",  # Arrange legend items vertically
+    legend.key.height = unit(0.5, "line"),  # Adjust the height of each legend item
+    legend.key.size = unit(0.05, "cm"),
+    legend.text = element_text(size = 6),  # Adjust the size of the legend text
+    legend.title = element_text(size = 7)  # Adjust the size of the legend title
+    ) +
+  guides(fill = guide_legend(ncol = 12))  # Adjust the number of columns in the legend
+print(plot5)
+```
