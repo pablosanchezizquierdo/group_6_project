@@ -1,0 +1,420 @@
+---
+title: "02_clean"
+format: html
+editor: visual
+---
+
+## Get data
+
+```{r}
+# Read TSV file into a data frame
+all_sheets <- read_delim("../data/all_sheets.tsv", delim = "\t")
+
+
+```
+
+## Select key variables (columns)
+
+We can dispense with many variables in this data set containing information that we will not be working with like the links and the scientific article information for each observation.
+
+```{r}
+# Define the columns you want to keep
+columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orthology", "Organism", "GenBankID", "Strain ID/Microorganism", "UniProt ID", "Protein ID", "Continent where study sampling was done (Collections)", "Country", "Isolation source", "Habitat notes")  
+
+# Subset the 'all_sheets' data frame to keep only the specified columns
+selected_columns <- all_sheets |> select(all_of(columns_to_keep))
+
+
+```
+
+## Visualize how many NaN values we have
+
+First, let's standardize all NA value types (NA, N/A, na, n/a) into a single type (NA)
+
+```{r}
+selected_columns <- selected_columns |> 
+  mutate(across(everything(),
+                ~ifelse(. %in% c("NA", 
+                                 "N/A", 
+                                 "na", 
+                                 "n/a"), 
+                        NA, 
+                        .)))
+```
+
+For the moment, it is very difficult to assess whether to drop whole variables because of the presence of a NaN value without loosing to much information, therefore, first, we can look at which variables are the ones containing the most NaN values and assess whether it is acceptable to lose them.
+
+```{r}
+
+# Count missing values (NaN and 'n/a') in each column
+total_samples <- nrow(selected_columns)
+nan_counts <- colSums(is.na(selected_columns))
+nan_percentages <- (nan_counts / total_samples) * 100
+
+# Create a data frame to store the percentages
+missing_data <- data.frame(Column = names(nan_percentages), 
+                           MissingPercentage = nan_percentages)
+
+# Create a histogram
+ggplot(missing_data, 
+       aes(x = Column, 
+           y = MissingPercentage)) +
+  geom_bar(stat = "identity", fill = "blue") +
+  labs(title = "Percentage of Missing Values in Each Column", 
+       x = "Column", 
+       y = "Percentage") +
+  scale_y_continuous(labels = scales::percent_format(scale = 1)) +
+  theme(axis.text.x = element_text(angle = 45, 
+                                   hjust = 1))
+
+```
+
+We can see how the variables with data related to location and the "Protein ID" and the "UniProt ID" variable are the ones with the most number of NaN values. For now, we can leave it like this. Eventually, we can create a unique identifier for each unique observation and then reassess the NaN situation.
+
+## Fixing naming conventions
+
+### Encoding Gene:
+
+For the naming convention, we are going to reduce names to the standard 4 letter code, when possible, where the first 3 letters are in lower-case and last letter in upper-case.
+
+It is not that straightforward, though. We have some complexities: - There are already correct 4-letter code gene names. - There are 4-letter code names with the first letter in upper-case. - There are 4-letter code names with variants (extra characters in the gene name) - There are gene names that do not follow the 4-letter code system.
+
+How we'll deal with this: - We'll mutate the column values depending on a set of conditions. - For gene codes following the 4-letter code, we'll take the first 4 characters and make the first 3 in lower-case and the last one in upper-case. (We'll account for variables of the same gene as the same gene. e.g. linA, LinA, linA1, linA_2 will all be linA) - For gene codes not following the 4-letter code, we'll leave the code as it is.
+
+```{r}
+# First, let's see how many different gene codes we have before format standardization:
+unique_values_EcondingGene <- selected_columns |> 
+  select("Encoding Gene") |> 
+  distinct() 
+
+count(unique_values_EcondingGene)
+```
+
+```{r}
+# Some variables we need:
+desired_length <- c(3,4,5,6)
+less6Char_No4L_list <- c('PA2086', 'PcCYP', 'RDases')
+more6Char_4L_list <- c('bphA1_1', 'bphA1_2', 'bphA2_1', 'bphA2_2', 'cprA-like', 'bphX0 (BphK)', 'bphX1 (BphK)', 'bphX2 (BphK)', 'bphX3 (BphK)')
+
+
+
+# We mutate the names:
+selected_columns <- selected_columns |> 
+  mutate(`Encoding Gene` = ifelse(
+    (nchar(`Encoding Gene`) %in% desired_length &
+    !(`Encoding Gene` %in% less6Char_No4L_list)) |
+    (`Encoding Gene` %in% more6Char_4L_list),
+                                  str_c(tolower(str_sub(`Encoding Gene`, 
+                                                        1, 
+                                                        3)),
+                                        toupper(str_sub(`Encoding Gene`, 
+                                                        4, 
+                                                        4))),
+                                  `Encoding Gene`))
+```
+
+```{r}
+# Now, let's see how many different gene codes we have after format standardization:
+unique_values_EcondingGene_clean <- selected_columns |> 
+  select("Encoding Gene") |> 
+  distinct() 
+count(unique_values_EcondingGene_clean)
+```
+
+### Continent:
+
+```{r}
+selected_columns <-selected_columns |> 
+  rename(`Continent where study sampling was done (Collections)` = 'Continent')
+```
+
+```{r}
+# First, let's see how many different Continents we have before name standardization:
+unique_values_Continent <- selected_columns |> 
+  select("Continent") |> 
+  distinct() 
+
+
+unique_values_Continent
+
+selected_columns |> 
+  ggplot(mapping = aes(x = Continent,
+                       fill = Continent)) +
+  geom_bar(color = "black", alpha = 0.7) +
+  labs(title = "Observation count for each continent",
+       x = "Continent",
+       y = "Frequency") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.text = element_text(size = 8),
+        legend.position = "bottom") +
+  guides(fill = guide_legend(nrow = 5))
+  
+```
+
+Now, there are a few redundancies in continents names. Also, we should try to keep only the 7 continents and the oceans.
+
+Changes to be made: - "Mediterranean sea" & "Mediterranean Sea" should be part of the "Atlantic Ocean". - Geographically, the "Middle East" is an ambiguous region in terms of continent. It encompasses 3 continents: Asia, Europe and Africa, so the continent should be decided by the country variable. - "Central America" will be considered part of "North America" - "Northern Atlantic Ocean" is part of the "Atlantic Ocean" - "South Pacific Ocean" is part of the "Pacific Ocean" - "South America, Europe" should be decided by the country variable.
+
+```{r}
+# Let's see about the "Middle East" countries:
+selected_columns |> 
+  select(c('Continent', 'Country')) |> 
+  filter(Continent == 'Middle East')
+
+# Let's see about the "South America, Europe" countries:
+selected_columns |> 
+  select(c('Continent', 'Country')) |> 
+  filter(Continent == 'South America, Europe')
+```
+
+```{r}
+# Sample conditions list
+conditions_list <- data.frame(
+  FromContinent = c("Mediterranean sea", 
+                    "Mediterranean Sea", 
+                    "Northern Atlantic Ocean", 
+                    "Middle East", 
+                    "Central America", 
+                    "Southern Pacific Ocean", 
+                    "South America, Europe"),
+  ToContinent = c("Atlantic Ocean", 
+                  "Atlantic Ocean",
+                  "Atlantic Ocean",
+                  "Asia",
+                  "North America",
+                  "Pacific Ocean",
+                  "South America, Europe"))
+
+# Join the data frame with the conditions list and update values in "Continent"
+selected_columns <- selected_columns |> 
+  left_join(conditions_list, 
+            by = c("Continent" = "FromContinent")) |> 
+  mutate(Continent = ifelse(ToContinent == "South America, Europe", 
+                            NA, 
+                            ifelse(!is.na(ToContinent),
+                                   ToContinent, 
+                                   Continent))) |> 
+  select(-ToContinent)
+
+```
+
+### Country:
+
+A comparable situation arises with countries, prompting us to standardize them to eliminate redundancies. Additionally, certain countries are labeled as 'Ocean'; we will transfer these entries to the continent column to ensure comprehensive standardization throughout the study.
+
+```{r}
+unique_countries <- selected_columns |> 
+  distinct(Country) |> arrange(Country)
+
+unique_countries
+```
+
+```{r}
+# Define a comprehensive mapping of countries and variations
+conditions_list2 <- data.frame(
+  ToCountry = c(
+    "Antarctica",
+    "Arctic Ocean",
+    "Atlantic Ocean",
+    "Australia",
+    "Belgium",
+    "Cameroon",
+    "Canada",
+    "Canada",
+    "China",
+    "China",
+    "China",
+    "Czech Republic",
+    "Czech Republic",
+    "Czech Republic",
+    "Ethiopia", 
+    "Ethiopia",
+    "France",
+    "Germany",
+    "Germany",
+    "Germany",
+    "Germany",
+    "Germany", 
+    "Germany",
+    "Germany",
+    "Germany",
+    "Germany",
+    "Germany",
+    "Germany",
+    "Germany",
+    "Germany",
+    "Greece",
+    "India",
+    "India",
+    "Iran",
+    "Italy",
+    "Italy",
+    "Japan",
+    "Netherlands",
+    "Portugal",
+    "South Africa",
+    "South Korea", 
+    "South Korea", 
+    "South Korea",
+    "Spain",
+    "Spain",
+    "Sweden",
+    "Sweden",
+    "Switzerland",
+    "Turkey",
+    "USA",
+    "USA",
+    "USA",
+    "USA",
+    "USA",
+    "USA",
+    "USA",
+    "USA",
+    "USA",
+    "USA",
+    "USA",
+    "USA",
+    "USA",
+    "Ukraine", 
+    "United Kingdom",
+    "Vietnam", 
+    "Mediterranean Sea", 
+    "Pacific Ocean",
+    "Pacific Ocean",
+    "Pacific Ocean",
+    "Pacific Ocean", 
+    "Atlantic Ocean",
+    "Atlantic Ocean",
+    "Atlantic Ocean"
+  ),
+  FromCountry = c(
+    "Antarctica: King George Island",
+    "Arctic Ocean: Southern Knipovich Ridge",
+    "Atlantic Ocean: Northern Atlantic Ocean",
+    "Australia: Northern Territory",
+    "Belgium: Sint-Truiden", 
+    "Cameroon: South West province, Bokwai", 
+    "Canada: British Columbia", 
+    "Canada: New Brunswick, Bouctouche",
+    "China: Hangzhou, Zhejiang", 
+    "China: Liaoning Province, Anshan City",
+    "China: rainy forest in Xishuangbanna", 
+    "Czech Republic: Jablonne", 
+    "Czech Republic: Jablonne nad Orlici",
+    "Czech repubic",
+    "Ethiopia: Gode region", 
+    "Ethopia",
+    "France: North of Ile Verte near the Roscoff Marine Station",
+    "Germany: Animal Facility, Justus-Liebig-University, Giessen", 
+    "Germany: Freiberg", 
+    "Germany: Heiligendamm",
+    "Germany: Helgoland harbor",
+    "Germany: Lake Baerensee, Stuttgart", 
+    "Germany: North Sea",
+    "Germany: Rostock, Hohe Duene", 
+    "Germany: Saxony",
+    "Germany: Sylt, North Sea",
+    "Germany: Vilsendorf, Bielefeld", 
+    "Germany:Berlin", 
+    "Germany:Magdeburg, River Elbe", 
+    "Germany:Raguhn, River Spittelwasser", 
+    "Greece: Agia, Larissa",
+    "India: Botanical Garden, Tamilnadu, Coimbatore",
+    "India: Kochi",
+    "Iran: Ardabil Province, Sain",
+    "Italy: Arenzano",
+    "Italy: Panarea",
+    "Japan: Tokyo",
+    "Netherlands: Terschelling",
+    "Portugal: Sao Pedro do Sul",
+    "South Africa:Pretoria", 
+    "South Korea: Chungnam National University, 99, Daehak-ro, Yuseong-gu, Daejeon", 
+    "South Korea: Seonyu island, Okdo-myeon, Gunsan-si, Jeollabuk-do", 
+    "South Korea: southern coast, Gwangyang Bay",
+    "Spain: Madrid", 
+    "Spain:Madrid", 
+    "Sweden: Kosterfjord",
+    "Sweden: Oresund",
+    "Switzerland: Zurich area",
+    "Turkey: Pamukkale, Hierapolis, Denizli",
+    "USA: California",
+    "USA: California, Pasadena",
+    "USA: Knoxville, Tennesee",
+    "USA: Lechuguilla Cave, New Mexico", 
+    "USA: Los Angeles, CA and UCR campus",
+    "USA: Minnesota",
+    "USA: Pensacola, Florida",
+    "USA: Puerto Rico", 
+    "USA: San Francisco, CA",
+    "USA: University Park, PA",
+    "USA: Urbana, Illinois",
+    "USA: WA",
+    "USA:New York, Upper Hudson River",
+    "Ukraine: Kiev region", 
+    "United Kingdom:Papworth", 
+    "Viet Nam", 
+    "Mediterranean sea", 
+    "South Sea", 
+    "Pacific Ocean: South Pacific Ocean", 
+    "Pacific Ocean: Valu Fa ridge", 
+    "South Pacific Ocean", 
+    "North Atlantic", 
+    "Northern Atlantic Ocean",  
+    "South Atlantic Ocean"
+  )
+)
+
+
+
+# Join the data frame with the conditions list and update values in "Continent"
+selected_columns <- selected_columns |> 
+  left_join(conditions_list2, 
+            by = c("Country" = "FromCountry")) |> 
+  mutate(Country = ifelse(!is.na(ToCountry),
+                                   ToCountry, 
+                                   Country))
+
+# Deal with weird rows
+weird_countries <- c("Brazil, Antarctic, Germany", "Chile-Peru Current Coastal","North Pond", "Eastern Africa Coastal Province")
+selected_columns <- selected_columns |> 
+  mutate(Country = ifelse(Country%in%weird_countries,
+                                   NA, 
+                                   Country))
+
+selected_columns <- selected_columns |> 
+  mutate(
+    Continent = ifelse(is.na(Continent) & grepl("Ocean", Country),
+                       Country,
+                       Continent))
+
+selected_columns <- selected_columns |> 
+  mutate(Country = ifelse(grepl("Ocean", Country),
+                     NA,
+                     Country))
+
+```
+
+```{r}
+unique_countries2 <- selected_columns |> 
+  distinct(Country) |> arrange(Country)
+
+unique_countries2
+```
+
+## Save cleaned data
+
+```{r}
+# Define the path for the output .tsv file
+output_file_path <- "../data/clean_data.tsv"
+
+# Save the subset data frame to a .tsv file
+write.table(selected_columns, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Verify that the file has been saved
+if (file.exists(output_file_path)) {
+  cat("Data with selected columns has been saved to", output_file_path, "\n")
+} else {
+  cat("Failed to save the data with selected columns to", output_file_path, "\n")
+}
+
+```
