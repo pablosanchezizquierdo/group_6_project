@@ -136,7 +136,7 @@ only_bacteria_data$correct_continent <- rep(NA, length = nrow(only_bacteria_data
 only_bacteria_data$correct_continent[which(grepl("Spain|Czech Republic|France|Germany|Poland|United Kingdom|Switzerland|Belgium|Greece|Sweden|Netherlands|Ukraine|Italy|Portugal|Denmark|Hungary|Norway|Austria|Serbia|Finland|Mediterranean Sea", only_bacteria_data$Country))] <- "Europe"
 only_bacteria_data$correct_continent[which(grepl("Tanzania|South Africa| Ethiopia|Morocco|Cameroon|Nigeria|Ghana|Uganda|Tunisia|Egypt", only_bacteria_data$Country))] <- "Africa"
 
-only_bacteria_data$correct_continent[which(grepl("USA|Canada|Peru|Brazil|America|Venezuela|Panama|Mexico|Chile|Cananda|French Guiana", only_bacteria_data$Country))] <- "America"
+only_bacteria_data$correct_continent[which(grepl("USA|Canada|Peru|Brazil|America|Venezuela|Panama|Mexico|Chile|French Guiana", only_bacteria_data$Country))] <- "America"
 
 only_bacteria_data$correct_continent[which(grepl("Australia|Kiribati", only_bacteria_data$Country))] <- "Oceania"
 only_bacteria_data$correct_continent[which(grepl("Japan|India|China|Russia|South Korea|Turkey|Iran|Israel|Taiwan|Saudi Arabia|Kuwait|Singapore|Vietnam|Pakistan|Indonesia|Zhongshan Station|Thailand|Myanmar", only_bacteria_data$Country))] <- "Asia"
