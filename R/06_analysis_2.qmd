@@ -1,0 +1,22 @@
+---
+title: "06_analisys_2"
+format: html
+editor: visual
+---
+## Ploting Pathways
+
+```{r}
+# Prepare the data (you may need to adjust this step based on your actual dataset structure)
+data_for_plot <- data_augmented %>%
+  count(`Compound Name`, Pathway_Info) %>%
+  group_by(`Compound Name`) %>%
+  mutate(Proportion = n / sum(n))
+
+# Create the stacked bar chart
+ggplot(data_for_plot, aes(fill = Pathway_Info, y = Proportion, x = `Compound Name`)) +
+  geom_bar(position = "fill", stat = "identity") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(title = "Proportion of Pathways for Each Compound",
+       x = "Compound",
+       y = "Proportion")
+```
