@@ -19,10 +19,22 @@ We can dispense with many variables in this data set containing information that
 
 ```{r}
 # Define the columns you want to keep
-columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orthology", "Organism", "GenBankID", "Strain ID/Microorganism", "UniProt ID", "Protein ID", "Continent where study sampling was done (Collections)", "Country", "Isolation source", "Habitat notes")  
+columns_to_keep <- c("Compound Name", 
+                     "Enzyme Name", 
+                     "Encoding Gene", 
+                     "KEGG Orthology", 
+                     "Organism", 
+                     "GenBankID", 
+                     "Strain ID/Microorganism", 
+                     "UniProt ID", "Protein ID", 
+                     "Continent where study sampling was done (Collections)", 
+                     "Country", 
+                     "Isolation source", 
+                     "Habitat notes")  
 
 # Subset the 'data' data frame to keep only the specified columns
-data_reduced <- data |> select(all_of(columns_to_keep))
+data_reduced <- data |> 
+  select(all_of(columns_to_keep))
 
 
 ```
@@ -69,7 +81,12 @@ ggplot(missing_data,
 
 ```
 
-We can see how the variables with data related to location and the "Protein ID" and the "UniProt ID" variable are the ones with the most number of NA values. For now, we can leave it like this. Eventually, we can create a unique identifier for each unique observation and then reassess the NA situation.
+We can see how the variables with data related to location and the "Protein ID" and the "UniProt ID" variable are the ones with the most number of NA values. Knowing this, we are going to eliminate the columns with the most amount of NA except for "KEGG Orthology" since we are going to work with that in the future.
+```{r}
+data_reduced <- data_reduced |> 
+  select(-c(`Habitat notes`, `Isolation source`, `UniProt ID`))
+```
+
 
 ## Fixing naming conventions
 
@@ -288,9 +305,7 @@ conditions_list2 <- data.frame(
     "Atlantic Ocean",
     "Atlantic Ocean",
     "Antarctica",
-    "Taiwan"
-    
-  ),
+    "Taiwan"),
   FromCountry = c(
     "Antarctica: King George Island",
     "Arctic Ocean: Southern Knipovich Ridge",
@@ -378,8 +393,10 @@ data_reduced <- data_reduced |>
             by = c("Country" = "FromCountry")) |> 
   mutate(Country = ifelse(!is.na(ToCountry),
                                    ToCountry, 
-                                   Country))
+                                   Country))|> 
+  select(-ToCountry)
 
+data_reduced
 # Deal with weird rows
 weird_countries <- c("Brazil, Antarctic, Germany", 
                      "Chile-Peru Current Coastal",
@@ -414,6 +431,15 @@ unique_countries2
 ```
 
 ### Compound Name:
+Again, here we have compound names that should be the same but have different annotations.
+```{r}
+# First, let's have a look at what we have:
+unique_values_compound <- data_reduced |> 
+  select("Compound Name") |> 
+  distinct() 
+unique_values_compound
+```
+
 
 ## Save cleaned data
 

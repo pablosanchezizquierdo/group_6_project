@@ -171,9 +171,3 @@ print(plot6)
 #Save the plot
 ggsave("../results/countries_and_continents_vs_organisms_stacked_plot.png", plot6, width = 10, height = 6, dpi = 300)
 ```
-
--   Uncultured shit
-
--   Country standardization messes up the file
-
--   
