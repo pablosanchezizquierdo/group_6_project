@@ -16,6 +16,7 @@ library("readxl")
 library("purrr")
 library("Biostrings")
 library("msa")
+library("KEGGREST")
 ```
 
 # Creating directories
