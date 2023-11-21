@@ -27,7 +27,7 @@ selected_columns <- all_sheets |> select(all_of(columns_to_keep))
 
 ```
 
-## Visualize how many NaN values we have
+## Visualize how many NA values we have
 
 First, let's standardize all NA value types (NA, N/A, na, n/a) into a single type (NA)
 
