@@ -288,9 +288,7 @@ conditions_list2 <- data.frame(
     "Atlantic Ocean",
     "Atlantic Ocean",
     "Antarctica",
-    "Taiwan"
-    
-  ),
+    "Taiwan"),
   FromCountry = c(
     "Antarctica: King George Island",
     "Arctic Ocean: Southern Knipovich Ridge",
@@ -378,8 +376,10 @@ data_reduced <- data_reduced |>
             by = c("Country" = "FromCountry")) |> 
   mutate(Country = ifelse(!is.na(ToCountry),
                                    ToCountry, 
-                                   Country))
+                                   Country))|> 
+  select(-ToCountry)
 
+data_reduced
 # Deal with weird rows
 weird_countries <- c("Brazil, Antarctic, Germany", 
                      "Chile-Peru Current Coastal",
