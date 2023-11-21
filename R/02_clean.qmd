@@ -69,7 +69,7 @@ ggplot(missing_data,
 
 ```
 
-We can see how the variables with data related to location and the "Protein ID" and the "UniProt ID" variable are the ones with the most number of NaN values. For now, we can leave it like this. Eventually, we can create a unique identifier for each unique observation and then reassess the NaN situation.
+We can see how the variables with data related to location and the "Protein ID" and the "UniProt ID" variable are the ones with the most number of NA values. For now, we can leave it like this. Eventually, we can create a unique identifier for each unique observation and then reassess the NA situation.
 
 ## Fixing naming conventions
 
@@ -412,6 +412,8 @@ unique_countries2 <- selected_columns |>
 
 unique_countries2
 ```
+### Compound Name:
+
 
 ## Save cleaned data
 
