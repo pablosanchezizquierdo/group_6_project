@@ -124,7 +124,7 @@ plot5 <- ggplot(data_clean, aes(x = Organism, fill = `Country`)) +
 print(plot5)
 
 #Save the plot
-ggsave("../results/countries_vs_organisms_stacked_plot.png", plot4, width = 10, height = 6, dpi = 300)
+ggsave("../results/countries_vs_organisms_stacked_plot.png", plot5, width = 10, height = 6, dpi = 300)
 ```
 
 Creation of a new data set with only information containing bacteria since it is more than 99% of the organisms:
@@ -169,5 +169,5 @@ plot6 <- ggplot(only_bacteria_data, aes(x = correct_continent, fill = Country)) 
 print(plot6)
 
 #Save the plot
-ggsave("../results/countries_and_continents_vs_organisms_stacked_plot.png", plot4, width = 10, height = 6, dpi = 300)
+ggsave("../results/countries_and_continents_vs_organisms_stacked_plot.png", plot6, width = 10, height = 6, dpi = 300)
 ```
