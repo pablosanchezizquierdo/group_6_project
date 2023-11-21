@@ -1,48 +1,4 @@
----
-title: "Data augmentation"
-format:
-  html:
-    embed-resources: true
-editor: visual
----
 
-# Protein sequences
-
-Protein sequences extracted from the raw fasta file "protein_seqs.fasta" are added to the corresponding sample using the Protein ID matches column. These sequences are stored in the "Sequence" column.
-
-## Load clean dataset from step 2
-
-```{r}
-tsv_file <- "../data/data_clean.tsv"
-data_clean <- read_tsv(tsv_file)
-```
-
-## ID/Sequences dataframe
-
-Convert a fasta file that contains all the headers and sequences to a dataframe (each row corresponds to a sample, the first column shows the Protein ID extracted from the header and the second columns contains the sequence)
-
-```{r}
-fasta_file <- "../data/_raw/protein_seqs.fasta"
-fasta_vector <- read_lines(fasta_file)             # Load fasta file as a character vector
-
-seq_df <- tibble(line = fasta_vector) |>           # Create a tibble dataframe where each row corresponds to a line in the fasta file
-  mutate(
-    Protein_ID = str_extract(line, "^>\\S+"),      # Store the >ID from the header. It stores an NA value if the line corresponds to a sequence
-    Sequence = str_extract(line, "^\\w+"),         # Store the sequence. It stores an NA value if the line corresponds to the header
-    Protein_ID = str_replace(Protein_ID, ">", "")  # Delete the ">" symbol from the protein ID
-  ) |>
-  fill(Protein_ID) |>                              # Replace NA values in the Protein_ID column using the protein ID from the previous row.
-  filter(!is.na(Sequence)) |>                      # Delete duplicate samples that contain NA values in the Sequence column
-  select(Protein_ID, Sequence)                     # Delete the original fasta lines
-```
-
-## Join dataframes
-
-Join both data frames using the Protein ID matches to incorporate the sequence column to the data_clean data frame, creating a new data frame called data_augmented.
-
-```{r}
-data_augmented <- left_join(data_clean, seq_df, by = "Protein_ID")
-```
 
 ## Add KEGG pathways
 
