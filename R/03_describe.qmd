@@ -35,7 +35,7 @@ ggsave("../results/organisms_distribution_plot.png", plot1, width = 10, height =
 
 ```{r}
 # Plot bar chart of compounds against organisms with legend
-plot2 <- ggplot(data_clean, aes(x = Organism, fill = `Compound Name`)) +
+plot2 <- ggplot(data_clean, aes(x = Organism, fill = Compound_Name)) +
   geom_bar(position = "dodge") +
   labs(title = "Compounds Distribution Across Organisms", x = "Organism", y = "Count") +
   theme_minimal() +
@@ -52,7 +52,7 @@ ggsave("../results/compounds_vs_organisms_distribution_plot.png", plot2, width =
 
 ```{r}
 # Stacked bar chart of genes across different organisms
-plot3 <- ggplot(data_clean, aes(x = Organism, fill = `Encoding Gene`)) +
+plot3 <- ggplot(data_clean, aes(x = Organism, fill = Encoding_Gene)) +
   geom_bar(position = "stack") +
   labs(title = "Genes Distribution Across Organisms", x = "Organism", y = "Count") +
   theme_minimal() + 
@@ -77,7 +77,7 @@ ggsave("../results/genes_vs_organisms_stacked_plot.png", plot3, width = 10, heig
 
 ```{r}
 # Stacked bar plot of genes and compounds
-plot4 <- ggplot(data_clean, aes(x = `Compound Name`, fill = `Encoding Gene`)) +
+plot4 <- ggplot(data_clean, aes(x = "Compound_Name", fill = Encoding_Gene)) +
   geom_bar(position = "stack") +
   labs(title = "Genes Count for Each Compound", x = "Compound Name", y = "Count") +
   theme_minimal() +
@@ -103,7 +103,7 @@ ggsave("../results/genes_vs_compounds_stacked_plot.png", plot4, width = 10, heig
 
 ```{r}
 # Stacked bar chart of countries across different organisms
-plot5 <- ggplot(data_clean, aes(x = Organism, fill = `Country`)) +
+plot5 <- ggplot(data_clean, aes(x = Organism, fill = Country)) +
   geom_bar(position = "stack") +
   labs(title = "Country Distribution Across Organisms", x = "Organism", y = "Count") +
   theme_minimal() + 

@@ -9,11 +9,11 @@ editor: visual
 ```{r}
 #| message: false
 library("tidyverse")
-library("dplyr")
-library("stringr")
-library("tidyr")
+#library("dplyr")
+#library("stringr")
+#library("tidyr")
 library("readxl")
-library("purrr")
+#library("purrr")
 library("Biostrings")
 library("msa")
 library("KEGGREST")

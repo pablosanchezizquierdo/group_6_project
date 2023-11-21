@@ -142,7 +142,7 @@ count(unique_values_EcondingGene_clean)
 
 ```{r}
 data_reduced <-data_reduced |> 
-  rename(`Continent where study sampling was done (Collections)` = 'Continent')
+  rename("Continent where study sampling was done (Collections)" = "Continent")
 ```
 
 ```{r}
@@ -439,7 +439,13 @@ unique_values_compound <- data_reduced |>
   distinct() 
 unique_values_compound
 ```
+## Rename variables
+Now, we delete spaces between words in variables name to avoid analysis problems
 
+```{r}
+data_reduced <- data_reduced |>
+  rename("Compound Name" = "Compound_Name", "Enzyme Name" = "Enzyme_Name", "Encoding Gene" = "Encoding_Gene", "KEGG Orthology" = "KEGG_Orthology", "Strain ID/Microorganism" = "Strain_ID/Microorganism", "Protein ID" = "Protein_ID")
+```
 
 ## Save cleaned data
 
