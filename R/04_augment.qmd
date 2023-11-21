@@ -48,6 +48,7 @@ data_augmented <- left_join(data_clean, seq_df, by = "Protein ID")
 
 ## Save cleaned data
 ```{r}
+#
 # Define the path for the output .tsv file
 output_file_path <- "../data/data_aumented.tsv"
 
