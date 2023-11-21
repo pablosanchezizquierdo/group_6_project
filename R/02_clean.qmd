@@ -8,7 +8,7 @@ editor: visual
 
 ```{r}
 # Read TSV file into a data frame
-all_sheets <- read_delim("../data/all_sheets.tsv", delim = "\t")
+all_sheets <- read_delim("../data/all_sheets.tsv", delim = "\t", show_col_types = FALSE)
 
 
 ```
@@ -23,8 +23,6 @@ columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orth
 
 # Subset the 'all_sheets' data frame to keep only the specified columns
 selected_columns <- all_sheets |> select(all_of(columns_to_keep))
-
-
 ```
 
 ## Visualize how many NaN values we have
