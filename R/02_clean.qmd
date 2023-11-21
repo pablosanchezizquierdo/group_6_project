@@ -189,11 +189,9 @@ conditions_list <- data.frame(
 selected_columns <- selected_columns |> 
   left_join(conditions_list, 
             by = c("Continent" = "FromContinent")) |> 
-  mutate(Continent = ifelse(ToContinent == "South America, Europe", 
-                            NA, 
-                            ifelse(!is.na(ToContinent),
+  mutate(Continent = ifelse(!is.na(ToContinent),
                                    ToContinent, 
-                                   Continent))) |> 
+                                   Continent)) |> 
   select(-ToContinent)
 
 ```
@@ -204,7 +202,8 @@ A comparable situation arises with countries, prompting us to standardize them t
 
 ```{r}
 unique_countries <- selected_columns |> 
-  distinct(Country) |> arrange(Country)
+  distinct(Country) |> 
+  arrange(Country)
 
 unique_countries
 ```
@@ -286,7 +285,10 @@ conditions_list2 <- data.frame(
     "Pacific Ocean", 
     "Atlantic Ocean",
     "Atlantic Ocean",
-    "Atlantic Ocean"
+    "Atlantic Ocean",
+    "Antarctica",
+    "Taiwan"
+    
   ),
   FromCountry = c(
     "Antarctica: King George Island",
@@ -362,10 +364,11 @@ conditions_list2 <- data.frame(
     "South Pacific Ocean", 
     "North Atlantic", 
     "Northern Atlantic Ocean",  
-    "South Atlantic Ocean"
+    "South Atlantic Ocean",
+    "South Shetland Islands",
+    "Zhongshan Station"
   )
 )
-
 
 
 # Join the data frame with the conditions list and update values in "Continent"
@@ -377,28 +380,34 @@ selected_columns <- selected_columns |>
                                    Country))
 
 # Deal with weird rows
-weird_countries <- c("Brazil, Antarctic, Germany", "Chile-Peru Current Coastal","North Pond", "Eastern Africa Coastal Province")
+weird_countries <- c("Brazil, Antarctic, Germany", 
+                     "Chile-Peru Current Coastal",
+                     "North Pond", 
+                     "Eastern Africa Coastal Province")
+
 selected_columns <- selected_columns |> 
   mutate(Country = ifelse(Country%in%weird_countries,
                                    NA, 
                                    Country))
 
 selected_columns <- selected_columns |> 
-  mutate(
-    Continent = ifelse(is.na(Continent) & grepl("Ocean", Country),
-                       Country,
-                       Continent))
+  mutate(Continent = ifelse(is.na(Continent) & grepl("Ocean", 
+                                                     Country),
+                            Country,
+                            Continent))
 
 selected_columns <- selected_columns |> 
-  mutate(Country = ifelse(grepl("Ocean", Country),
-                     NA,
-                     Country))
+  mutate(Country = ifelse(grepl("Ocean", 
+                                Country),
+                          NA,
+                          Country))
 
 ```
 
 ```{r}
 unique_countries2 <- selected_columns |> 
-  distinct(Country) |> arrange(Country)
+  distinct(Country) |> 
+  arrange(Country)
 
 unique_countries2
 ```

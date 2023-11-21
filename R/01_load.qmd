@@ -28,8 +28,6 @@ all_sheets <- all_sheets |> distinct()
 
 ```
 
-The final object is a list of lists of excel sheets data. The outer list contains filenames, the inner list contains file_sheets, and each sheet contains the variables and data.
-
 # Save data into a single table:
 
 ```{r}

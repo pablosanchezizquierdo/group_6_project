@@ -45,7 +45,7 @@ seq_df <- tibble(line = fasta_vector) |>           # Create a tibble dataframe w
 
 ## Join dataframes
 
-Join both dataframes using the Protein ID matches to incorporte the sequence column to the genes_clean dataframe, creating a new dataframe called data_augmented.
+Join both data frames using the Protein ID matches to incorporate the sequence column to the genes_clean data frame, creating a new data frame called data_augmented.
 
 ```{r}
 data_augmented <- left_join(genes_clean, seq_df, by = "Protein ID")
