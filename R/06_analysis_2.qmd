@@ -14,16 +14,26 @@ data_augmented <- read_tsv(tsv_file, show_col_types = FALSE)
 ## Ploting Pathways
 
 ```{r}
-# Directly use filtering in the plotting pipeline
-ggplot(data_augmented %>%
-         filter(!is.na(`Compound Name`) & !is.na(Pathway_Info)) %>%
-         count(`Compound Name`, Pathway_Info) %>%
-         group_by(`Compound Name`) %>%
+# Enhanced stacked bar chart with ggplot2
+ggplot(data_augmented |> 
+         filter(!is.na(`Compound Name`) & !is.na(Pathway_Info)) |> 
+         count(`Compound Name`, Pathway_Info) |> 
+         group_by(`Compound Name`) |> 
          mutate(Proportion = n / sum(n)), 
        aes(fill = Pathway_Info, y = Proportion, x = `Compound Name`)) +
   geom_bar(position = "fill", stat = "identity") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  labs(title = "Proportion of Pathways for Each Compound",
-       x = "Compound",
-       y = "Proportion")
+  scale_fill_viridis_d() + # Using viridis color palette for better color distinction
+  theme_minimal() + # Minimalist theme
+  theme(
+    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 8, color = "black"),
+    axis.text.y = element_text(size = 8, color = "black"),
+    axis.title = element_text(size = 10, face = "bold"),
+    plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
+  ) +
+  labs(
+    title = "Proportion of Pathways for Each Compound",
+    x = "Compound",
+    y = "Proportion",
+    fill = "Pathway"
+  )
 ```
