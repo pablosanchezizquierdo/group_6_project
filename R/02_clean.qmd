@@ -8,7 +8,7 @@ editor: visual
 
 ```{r}
 # Read TSV file into a data frame
-all_sheets <- read_delim("../data/all_sheets.tsv", delim = "\t")
+data <- read_delim("../data/data.tsv", delim = "\t")
 
 
 ```
@@ -21,8 +21,8 @@ We can dispense with many variables in this data set containing information that
 # Define the columns you want to keep
 columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orthology", "Organism", "GenBankID", "Strain ID/Microorganism", "UniProt ID", "Protein ID", "Continent where study sampling was done (Collections)", "Country", "Isolation source", "Habitat notes")  
 
-# Subset the 'all_sheets' data frame to keep only the specified columns
-selected_columns <- all_sheets |> select(all_of(columns_to_keep))
+# Subset the 'data' data frame to keep only the specified columns
+data_reduced <- data |> select(all_of(columns_to_keep))
 
 
 ```
@@ -32,7 +32,7 @@ selected_columns <- all_sheets |> select(all_of(columns_to_keep))
 First, let's standardize all NA value types (NA, N/A, na, n/a) into a single type (NA)
 
 ```{r}
-selected_columns <- selected_columns |> 
+data_reduced <- data_reduced |> 
   mutate(across(everything(),
                 ~ifelse(. %in% c("NA", 
                                  "N/A", 
@@ -47,8 +47,8 @@ For the moment, it is very difficult to assess whether to drop whole variables b
 ```{r}
 
 # Count missing values (NaN and 'n/a') in each column
-total_samples <- nrow(selected_columns)
-nan_counts <- colSums(is.na(selected_columns))
+total_samples <- nrow(data_reduced)
+nan_counts <- colSums(is.na(data_reduced))
 nan_percentages <- (nan_counts / total_samples) * 100
 
 # Create a data frame to store the percentages
@@ -83,7 +83,7 @@ How we'll deal with this: - We'll mutate the column values depending on a set of
 
 ```{r}
 # First, let's see how many different gene codes we have before format standardization:
-unique_values_EcondingGene <- selected_columns |> 
+unique_values_EcondingGene <- data_reduced |> 
   select("Encoding Gene") |> 
   distinct() 
 
@@ -99,7 +99,7 @@ more6Char_4L_list <- c('bphA1_1', 'bphA1_2', 'bphA2_1', 'bphA2_2', 'cprA-like', 
 
 
 # We mutate the names:
-selected_columns <- selected_columns |> 
+data_reduced <- data_reduced |> 
   mutate(`Encoding Gene` = ifelse(
     (nchar(`Encoding Gene`) %in% desired_length &
     !(`Encoding Gene` %in% less6Char_No4L_list)) |
@@ -115,7 +115,7 @@ selected_columns <- selected_columns |>
 
 ```{r}
 # Now, let's see how many different gene codes we have after format standardization:
-unique_values_EcondingGene_clean <- selected_columns |> 
+unique_values_EcondingGene_clean <- data_reduced |> 
   select("Encoding Gene") |> 
   distinct() 
 count(unique_values_EcondingGene_clean)
@@ -124,20 +124,20 @@ count(unique_values_EcondingGene_clean)
 ### Continent:
 
 ```{r}
-selected_columns <-selected_columns |> 
+data_reduced <-data_reduced |> 
   rename(`Continent where study sampling was done (Collections)` = 'Continent')
 ```
 
 ```{r}
 # First, let's see how many different Continents we have before name standardization:
-unique_values_Continent <- selected_columns |> 
+unique_values_Continent <- data_reduced |> 
   select("Continent") |> 
   distinct() 
 
 
 unique_values_Continent
 
-selected_columns |> 
+data_reduced |> 
   ggplot(mapping = aes(x = Continent,
                        fill = Continent)) +
   geom_bar(color = "black", alpha = 0.7) +
@@ -157,12 +157,12 @@ Changes to be made: - "Mediterranean sea" & "Mediterranean Sea" should be part o
 
 ```{r}
 # Let's see about the "Middle East" countries:
-selected_columns |> 
+data_reduced |> 
   select(c('Continent', 'Country')) |> 
   filter(Continent == 'Middle East')
 
 # Let's see about the "South America, Europe" countries:
-selected_columns |> 
+data_reduced |> 
   select(c('Continent', 'Country')) |> 
   filter(Continent == 'South America, Europe')
 ```
@@ -184,7 +184,7 @@ conditions_list <- data.frame(
                   "Pacific Ocean"))
 
 # Join the data frame with the conditions list and update values in "Continent"
-selected_columns <- selected_columns |> 
+data_reduced <- data_reduced |> 
   left_join(conditions_list, 
             by = c("Continent" = "FromContinent")) |> 
   mutate(Continent = ifelse(!is.na(ToContinent),
@@ -202,7 +202,7 @@ selected_columns <- selected_columns |>
 A comparable situation arises with countries, prompting us to standardize them to eliminate redundancies. Additionally, certain countries are labeled as 'Ocean'; we will transfer these entries to the continent column to ensure comprehensive standardization throughout the study.
 
 ```{r}
-unique_countries <- selected_columns |> 
+unique_countries <- data_reduced |> 
   distinct(Country) |> 
   arrange(Country)
 
@@ -373,7 +373,7 @@ conditions_list2 <- data.frame(
 
 
 # Join the data frame with the conditions list and update values in "Continent"
-selected_columns <- selected_columns |> 
+data_reduced <- data_reduced |> 
   left_join(conditions_list2, 
             by = c("Country" = "FromCountry")) |> 
   mutate(Country = ifelse(!is.na(ToCountry),
@@ -386,18 +386,18 @@ weird_countries <- c("Brazil, Antarctic, Germany",
                      "North Pond", 
                      "Eastern Africa Coastal Province")
 
-selected_columns <- selected_columns |> 
+data_reduced <- data_reduced |> 
   mutate(Country = ifelse(Country%in%weird_countries,
                                    NA, 
                                    Country))
 
-selected_columns <- selected_columns |> 
+data_reduced <- data_reduced |> 
   mutate(Continent = ifelse(is.na(Continent) & grepl("Ocean", 
                                                      Country),
                             Country,
                             Continent))
 
-selected_columns <- selected_columns |> 
+data_reduced <- data_reduced |> 
   mutate(Country = ifelse(grepl("Ocean", 
                                 Country),
                           NA,
@@ -406,23 +406,23 @@ selected_columns <- selected_columns |>
 ```
 
 ```{r}
-unique_countries2 <- selected_columns |> 
+unique_countries2 <- data_reduced |> 
   distinct(Country) |> 
   arrange(Country)
 
 unique_countries2
 ```
-### Compound Name:
 
+### Compound Name:
 
 ## Save cleaned data
 
 ```{r}
 # Define the path for the output .tsv file
-output_file_path <- "../data/clean_data.tsv"
+output_file_path <- "../data/data_clean.tsv"
 
 # Save the subset data frame to a .tsv file
-write.table(selected_columns, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(data_reduced, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
 
 # Verify that the file has been saved
 if (file.exists(output_file_path)) {

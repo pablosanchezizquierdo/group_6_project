@@ -8,7 +8,7 @@ editor: visual
 
 ```{r}
 # Read TSV file into a data frame
-data_clean <- read_delim("../data/clean_data.tsv", delim = "\t")
+data_clean <- read_delim("../data/data_clean.tsv", delim = "\t")
 
 ```
 

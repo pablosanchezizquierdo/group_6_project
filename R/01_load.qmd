@@ -32,7 +32,7 @@ all_sheets <- all_sheets |> distinct()
 
 ```{r}
 # Define the path for the output .tsv file
-output_file_path <- "../data/all_sheets.tsv"
+output_file_path <- "../data/data.tsv"
 
 # Save the 'all_sheets' data frame to a .tsv file
 write_delim(all_sheets, file = output_file_path, delim = "\t", col_names = TRUE)

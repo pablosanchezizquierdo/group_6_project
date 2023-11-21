@@ -6,12 +6,6 @@ format:
 editor: visual
 ---
 
-# Load library
-
-```{r}
-library(tidyverse)
-```
-
 # Protein sequences
 
 Protein sequences extracted from the raw fasta file "protein_seqs.fasta" are added to the corresponding sample using the Protein ID matches column. These sequences are stored in the "Sequence" column.
@@ -19,8 +13,8 @@ Protein sequences extracted from the raw fasta file "protein_seqs.fasta" are add
 ## Load clean dataset from step 2
 
 ```{r}
-tsv_file <- "../data/clean_data.tsv"
-genes_clean <- read_tsv(tsv_file)
+tsv_file <- "../data/data_clean.tsv"
+data_clean <- read_tsv(tsv_file)
 ```
 
 ## ID/Sequences dataframe
@@ -40,13 +34,30 @@ seq_df <- tibble(line = fasta_vector) |>           # Create a tibble dataframe w
   fill(Protein_ID) |>                              # Replace NA values in the Protein_ID column using the protein ID from the previous row.
   filter(!is.na(Sequence)) |>                      # Delete duplicate samples that contain NA values in the Sequence column
   select(Protein_ID, Sequence) |>                  # Delete the original fasta lines
-  rename("Protein ID" = Protein_ID)                # Put the same name column as in the clean data
+  rename(Protein_ID = "Protein ID")                # Put the same name column as in the clean data
 ```
 
 ## Join dataframes
 
-Join both data frames using the Protein ID matches to incorporate the sequence column to the genes_clean data frame, creating a new data frame called data_augmented.
+Join both data frames using the Protein ID matches to incorporate the sequence column to the data_clean data frame, creating a new data frame called data_augmented.
 
 ```{r}
-data_augmented <- left_join(genes_clean, seq_df, by = "Protein ID")
+data_augmented <- left_join(data_clean, seq_df, by = "Protein ID")
+```
+
+
+## Save cleaned data
+```{r}
+# Define the path for the output .tsv file
+output_file_path <- "../data/data_aumented.tsv"
+
+# Save the subset data frame to a .tsv file
+write.table(data_reduced, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Verify that the file has been saved
+if (file.exists(output_file_path)) {
+  cat("Data with selected columns has been saved to", output_file_path, "\n")
+} else {
+  cat("Failed to save the data with selected columns to", output_file_path, "\n")
+}
 ```
