@@ -6,7 +6,7 @@ editor: visual
 ## Loading dataset
 
 ```{r}
-tsv_file <- "../data/data_aumented.tsv"
+tsv_file <- "../data/data_augmented.tsv"
 data_augmented <- read_tsv(tsv_file, show_col_types = FALSE)
 ```
 
@@ -16,11 +16,11 @@ data_augmented <- read_tsv(tsv_file, show_col_types = FALSE)
 ```{r}
 # Enhanced stacked bar chart with ggplot2
 ggplot(data_augmented |> 
-         filter(!is.na(`Compound Name`) & !is.na(Pathway_Info)) |> 
-         count(`Compound Name`, Pathway_Info) |> 
-         group_by(`Compound Name`) |> 
+         filter(!is.na(Compound_Name) & !is.na(Pathway_Info)) |> 
+         count(Compound_Name, Pathway_Info) |> 
+         group_by(Compound_Name) |> 
          mutate(Proportion = n / sum(n)), 
-       aes(fill = Pathway_Info, y = Proportion, x = `Compound Name`)) +
+       aes(fill = Pathway_Info, y = Proportion, x = Compound_Name)) +
   geom_bar(position = "fill", stat = "identity") +
   scale_fill_viridis_d() + # Using viridis color palette for better color distinction
   theme_minimal() + # Minimalist theme
