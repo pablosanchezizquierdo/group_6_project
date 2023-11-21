@@ -175,15 +175,13 @@ conditions_list <- data.frame(
                     "Northern Atlantic Ocean", 
                     "Middle East", 
                     "Central America", 
-                    "Southern Pacific Ocean", 
-                    "South America, Europe"),
+                    "Southern Pacific Ocean"),
   ToContinent = c("Atlantic Ocean", 
                   "Atlantic Ocean",
                   "Atlantic Ocean",
                   "Asia",
                   "North America",
-                  "Pacific Ocean",
-                  "South America, Europe"))
+                  "Pacific Ocean"))
 
 # Join the data frame with the conditions list and update values in "Continent"
 selected_columns <- selected_columns |> 
@@ -191,6 +189,9 @@ selected_columns <- selected_columns |>
             by = c("Continent" = "FromContinent")) |> 
   mutate(Continent = ifelse(!is.na(ToContinent),
                                    ToContinent, 
+                                   Continent)) |> 
+  mutate(Continent = ifelse(Continent == "South America, Europe",
+                                   NA, 
                                    Continent)) |> 
   select(-ToContinent)
 
