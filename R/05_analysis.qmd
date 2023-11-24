@@ -33,12 +33,394 @@ print(compound_lists)
 # Perform MSA on each list of sequences
 aligned_compounds <- compound_lists |>
   filter(map_lgl(ProteinSequences, ~length(.x) < 200)) |> 
-  mutate(AlignedSequences = map(ProteinSequences, ~msa(.x, type = "protein")))
+  mutate(MSA = map(ProteinSequences, ~msa(.x, type = "protein")))
 
-print(aligned_compounds$AlignedSequences)
+#print(aligned_compounds$AlignedSequences)
 
 ```
-### A partir d'aqui son proves que he fet Lo de amunt funciona
+## Consensus sequence
+
+Extract consensus sequence from MSA and check the percentage of gaps and missing positions.
+
+```{r}
+calculate_percentage <- function(consensus_sequence) {
+    
+    count <- str_count(consensus_sequence, fixed("-")) + str_count(consensus_sequence, fixed("?"))
+    total <- nchar(consensus_sequence)
+    percentage <- (count / total) * 100
+
+    return(percentage)
+}
+
+aligned_compounds <- aligned_compounds |>
+  mutate(consensus_sequence = map(MSA, ~consensusString(consensusMatrix(.x)))) |>
+  mutate(percentage = unlist(map(consensus_sequence, ~calculate_percentage(.x))))
+  
+```
+
+Plot the percentages for each compound
+
+```{r}
+aligned_compounds |>
+  ggplot(aes(x = Compound_Name, y = percentage)) + 
+    geom_bar(stat = "identity", fill = "steelblue") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1, vjust = 1), axis.text.y = element_text(size = 8))
+    labs(title = "Percentage of missing positions for each compound alignment", x = "Compounds", y = "Percentage")
+```
+## Aligned sequences
+
+We extract aligned sequences from MSA alignment to perform posterior analysis
+
+```{r}
+aligned_compounds <- aligned_compounds |>
+  mutate(aligned_sequences = map(MSA, ~msaConvert(.x, type="bios2mds::align"))) |>
+  mutate(aligned_sequences = map(aligned_sequences, ~map(.x, ~paste(.x, collapse = ""))))
+```
+
+## Core sequences
+
+In order to make sequence logos on the core sequences, we need to calculate the best 9mer.
+
+```{r}
+conMat <- consensusMatrix(aligned_compounds$MSA[17][[1]])
+
+mer_position_function <- function(consensus_mat) {
+  consensus_mat <- consensus_mat |>
+      as.data.frame() |>
+      mutate(position = row_number()) |>
+      pivot_longer(-position, names_to = "position_aa", values_to = "aa") |>
+      group_by(position) |>
+      mutate(position_score = max(aa)) |>
+      select(position, position_score) |>
+      distinct(position, .keep_all = TRUE)
+  
+  consensus_mat <- data.frame(
+    position = consensus_mat$position,
+    position_score = consensus_mat$position_score
+  )
+  
+  mer_position <- consensus_mat |>
+    mutate(mer_score = lead(position_score, n=1, default = 0) + lead(position_score, n=1, default = 0) + lead(position_score, n=2, default = 0) + lead(position_score, n=3, default = 0) + lead(position_score, n=4, default = 0) + lead(position_score, n=5, default = 0) + lead(position_score, n=6, default = 0) + lead(position_score, n=7, default = 0) + lead(position_score, n=8, default = 0)) |>
+    filter(mer_score == max(mer_score)) |>
+    slice_head(n = 1) |>
+    select(position) |>
+    pull()
+  
+  return(mer_position)
+}
+
+aligned_compounds <- aligned_compounds |>
+  mutate(conMat = map(MSA, ~consensusMatrix(.x))) |>
+  mutate(mer_position = map(conMat, ~mer_position_function(.x)))
+```
+
+## Plotting MSA
+
+Plot sequence logos on the MSA using the 9mer got before (starting position stored in mer_position)
+
+```{r}
+alignment <- aligned_compounds$MSA[17][[1]]
+
+```
+
+```{r}
+
+plot_MSA <- function(MSA){
+  plot <- msaPrettyPrint(MSA, output="pdf", y=c(mer_position, mer_position + 8), showNames="none", showLogo="top",
+  logoColors="rasmol", shadingMode="similar",
+  showLegend=FALSE, askForOverwrite=FALSE)
+}
+
+aligned_compounds |>
+  map(MSA, ~plot_MSA(.x))
+```
+```{r}
+# Define the plot_MSA function
+plot_MSA <- function(MSA) {
+  plot <- msaPrettyPrint(
+    MSA, 
+    output = "pdf", 
+    y = c(9, 18),  # Assuming 'mer_position' is defined somewhere
+    showNames = "none", 
+    showLogo = "top",
+    logoColors = "rasmol", 
+    shadingMode = "similar",
+    showLegend = FALSE, 
+    askForOverwrite = FALSE
+  )
+  return(plot)  # Return the 'plot' object
+}
+
+# Apply the plot_MSA function to each element in the "MSA" column using map
+result_list <- aligned_compounds %>%
+  mutate(plot_result = map(MSA, plot_MSA))
+```
+
+
+```{r}
+hamming_distance <- function(seq1, seq2) {
+    # Ensure the sequences are character strings
+    seq1 <- as.character(seq1)
+    seq2 <- as.character(seq2)
+    # Check if lengths are equal
+    if (nchar(seq1) != nchar(seq2)) {
+        stop("Sequences must be of the same length")
+    }
+
+    # Convert strings to vectors of characters
+    chars_seq1 <- strsplit(seq1, "")[[1]]
+    chars_seq2 <- strsplit(seq2, "")[[1]]
+
+    # Calculate Hamming distance
+    return(sum(chars_seq1 != chars_seq2))
+}
+calculate_distance_matrix <- function(sequences_list) {
+    n <- length(sequences_list)
+    distance_matrix <- matrix(nrow = n, ncol = n)
+    
+    for (i in 1:n) {
+        for (j in 1:n) {
+            distance_matrix[i, j] <- hamming_distance(sequences_list[[i]], sequences_list[[j]])
+        }
+    }
+    
+    return(distance_matrix)
+}
+```
+
+```{r}
+aligned_compounds <- aligned_compounds |>
+  mutate(distance_matrix = map(aligned_sequences, ~calculate_distance_matrix(.x)))
+```
+
+```{r}
+print()
+```
+
+
+```{r}
+# Function to compute the complete linkage distance between two clusters
+complete_linkage_distance <- function(cluster1, cluster2, dist_matrix) {
+  max(sapply(cluster1, function(i) {
+    sapply(cluster2, function(j) {
+      dist_matrix[i, j]
+    })
+  }))
+}
+
+# Hierarchical clustering function
+hierarchical_clustering <- function(dist_matrix) {
+  clusters <- list(seq_len(nrow(dist_matrix)))
+  while (length(clusters) > 1) {
+    # Find the pair of clusters with the smallest complete linkage distance
+    min_dist <- Inf
+    min_pair <- c(0, 0)
+    for (i in 1:(length(clusters) - 1)) {
+      for (j in (i + 1):length(clusters)) {
+        dist <- complete_linkage_distance(clusters[[i]], clusters[[j]], dist_matrix)
+        if (dist < min_dist) {
+          min_dist <- dist
+          min_pair <- c(i, j)
+        }
+      }
+    }
+    
+    # Merge the closest pair of clusters
+    new_cluster <- c(clusters[[min_pair[1]]], clusters[[min_pair[2]]])
+    clusters <- clusters[-c(min_pair[1], min_pair[2])]
+    clusters <- c(clusters, list(new_cluster))
+  }
+  
+  return(clusters[[1]])
+}
+```
+
+```{r}
+distance_matrix <- aligned_compounds$distance_matrix[11]
+distance_matrix_2 <- distance_matrix[[1]]
+class(distance_matrix_2)
+#aligned_compounds$distance_matrix[1]
+is.matrix(distance_matrix_2)
+clusters <- hierarchical_clustering(distance_matrix_2)
+print(clusters)
+```
+
+```{r}
+# Apply Multidimensional Scaling
+mds_result <- cmdscale(distance_matrix_2, k=2) # k is the number of dimensions, usually 2 or 3
+
+# Plotting the result
+plot(mds_result, type="n", xlab="Dimension 1", ylab="Dimension 2", main="MDS Plot")
+text(mds_result, labels=rownames(mds_result), pos=4, cex=0.6)
+matrix_length <- nrow(distance_matrix_2)
+sample_labels <- seq(1, matrix_length)
+text(mds_result, labels=sample_labels, pos=4, cex=0.7)
+```
+
+
+
+```{r}
+# Define a custom function to process each element
+process_sequence <- function(alignment_row) {
+    # Extract the first element of the list in the row
+    #alignment_2 <- alignment_row[[1]]
+    
+    # Convert the alignment
+    alignment_3 <- msaConvert(alignment_2, type="bios2mds::align")
+    
+    # Concatenate the sequences
+    alignment_4 <- lapply(alignment_row, function(x) paste(x, collapse = ""))
+    
+    return(alignment_4)
+}
+
+# Apply the function to each row of the AlignedSequences column
+processed_sequences <- lapply(aligned_compounds$AlignedSequences, process_sequence)
+
+# 'processed_sequences' now contains the processed data for each row
+```
+
+```{r}
+hemoAln3_1 <- hemoAln3[1]
+hemoAln3_1 <- hemoAln3_1[[1]]
+print(hemoAln3_1[1])
+```
+
+```{r}
+ProteinSequences <- aligned_compounds$ProteinSequences[1]
+#ProteinSequences <- ProteinSequences[[1]]
+print(ProteinSequences)
+```
+
+```{r}
+compound_lists_2 <- data_augmented |>
+  filter(!is.na(Sequence)) |> 
+  group_by(Compound_Name) |>
+  summarise(ProteinSequences = list(Sequence))
+```
+
+```{r}
+specific_compound <- compound_lists_2 |> 
+  filter(Compound_Name == "Endosulfan") |> 
+  pull(ProteinSequences)
+
+# This will print the sequences for the chosen compound
+print(specific_compound)
+```
+
+```{r}
+# Concatenate all elements into a single string
+concatenated_string <- paste(hemoAln3_1, collapse = "")
+```
+
+
+
+```{r}
+str(hemoAln3)
+```
+
+```{r}
+print(alignment)
+```
+
+
+## Phylogenetic tree
+
+```{r}
+library(phylocom)
+```
+
+```{r}
+consensus_seq <- consensusSequence(alignment)
+```
+```{r}
+library(Biostrings)
+```
+
+```{r}
+print(alignment)
+```
+
+
+```{r}
+# Assuming 'alignment' is your MSA object
+cons_matrix <- consensusMatrix(alignment)
+cons_seq <- consensusString(cons_matrix)
+print(cons_seq)
+```
+```{r}
+alignedSequences <- msaConvert(alignment, type="AAMultipleAlignment")
+```
+
+```{r}
+library("ape")
+library("seqinr")
+```
+
+
+```{r}
+# The msa object stores sequences in a list-like structure
+alignedSequences <- alignment@seqs
+
+# Convert to a vector of strings
+sequenceVector <- sapply(alignedSequences, as.character)
+```
+
+```{r}
+hemoAln3 <- msaConvert(alignment, type="bios2mds::align")
+str(hemoAln3)
+```
+
+```{r}
+hemoAln4 <- as(alignment, "BStringSet")
+hemoAln4
+```
+
+
+
+```{r}
+alignment_object_first_row <- aligned_compounds$AlignedSequences[18]
+alignment <- alignment_object_first_row[[1]]
+```
+
+
+```{r}
+msaPrettyPrint(alignment, output="tex", y=c(164, 213),
+subset=c(1:6), showNames="none", showLogo="none",
+consensusColor="ColdHot", showLegend=FALSE,
+askForOverwrite=FALSE)
+```
+
+```{r}
+# Redirecting the output of msaPrettyPrint to a temporary file
+tempFile <- tempfile()
+sink(tempFile)
+msaPrettyPrint(alignment, output="fasta")
+sink()
+
+# Reading back the content
+alignedSequences <- readLines(tempFile)
+
+# Cleaning up the temporary file
+unlink(tempFile)
+
+# Process the content to extract sequences
+sequences <- alignedSequences[grep(">", alignedSequences, invert = TRUE)]
+sequenceVector <- paste(sequences, collapse = "")
+```
+
+```{r}
+library(texshade)
+```
+
+
+```{r}
+library(seqinr)
+d <- dist.alignment(aligned_compunds$AlignedSequences, "identity")
+#as.matrix(d)[2:5, "HBA1_Homo_sapiens", drop=FALSE]
+```
+
 
 ```{r}
 
