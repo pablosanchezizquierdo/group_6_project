@@ -4,6 +4,12 @@ format: html
 editor: visual
 ---
 
+## Load augment dataset from step 4
+
+```{r}
+tsv_file <- "../data/data_augmented.tsv"
+data_augmented <- read_tsv(tsv_file)
+```
 
 
 ```{r}
@@ -12,7 +18,7 @@ editor: visual
 # Split the dataset based on compound name
 compound_lists <- data_augmented |>
   filter(!is.na(Sequence)) |> 
-  group_by(`Compound Name`) |> 
+  group_by(Compound_Name) |> 
   summarise(ProteinSequences = list(Sequence))
 
 # Print or use the list of sequences for each compound
@@ -22,7 +28,7 @@ print(compound_lists)
 
 
 ```{r}
-library("ggseqlogo")
+#library("ggseqlogo")
 
 # Perform MSA on each list of sequences
 aligned_compounds <- compound_lists |>
