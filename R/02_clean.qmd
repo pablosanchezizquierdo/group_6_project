@@ -17,13 +17,12 @@ We can dispense with many variables in this data set containing information that
 
 ```{r}
 # Define the columns you want to keep
-<<<<<<< HEAD
+
 columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orthology", "Organism", "GenBankID", "Strain ID/Microorganism", "UniProt ID", "Protein ID", "Continent where study sampling was done (Collections)", "Country", "Isolation source", "Habitat notes")  
 
 # Subset the 'all_sheets' data frame to keep only the specified columns
 selected_columns <- all_sheets |> select(all_of(columns_to_keep))
-=======
->>>>>>> f9af2c19b79fd3d1f056bdfd1e093ce98abec9a1
+
 columns_to_keep <- c("Compound Name", 
                      "Enzyme Name", 
                      "Encoding Gene", 
@@ -41,10 +40,6 @@ columns_to_keep <- c("Compound Name",
 data_reduced <- data |> 
   select(all_of(columns_to_keep))
 
-<<<<<<< HEAD
-
-=======
->>>>>>> f9af2c19b79fd3d1f056bdfd1e093ce98abec9a1
 ```
 
 ## Visualize how many NA values we have
