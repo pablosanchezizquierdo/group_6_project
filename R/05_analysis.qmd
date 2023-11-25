@@ -11,7 +11,6 @@ tsv_file <- "../data/data_augmented.tsv"
 data_augmented <- read_tsv(tsv_file)
 ```
 
-
 ```{r}
 ### Extract a vector of sequences
 
@@ -26,7 +25,6 @@ compound_lists <- data_augmented |>
 
 ```
 
-
 ```{r}
 #library("ggseqlogo")
 
@@ -38,6 +36,7 @@ aligned_compounds <- compound_lists |>
 #print(aligned_compounds$AlignedSequences)
 
 ```
+
 ## Consensus sequence
 
 Extract consensus sequence from MSA and check the percentage of gaps and missing positions.
@@ -68,6 +67,7 @@ aligned_compounds |>
     theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1, vjust = 1), axis.text.y = element_text(size = 8))
     labs(title = "Percentage of missing positions for each compound alignment", x = "Compounds", y = "Percentage")
 ```
+
 ## Aligned sequences
 
 We extract aligned sequences from MSA alignment to perform posterior analysis
@@ -128,7 +128,6 @@ aligned_compounds <- aligned_compounds |>
 #plot(hemoTree, main="Phylogenetic Tree of Hemoglobin Alpha Sequences")
 ```
 
-
 ## Core sequences
 
 In order to make sequence logos on the core sequences, we need to calculate the best 9mer.
@@ -186,6 +185,7 @@ plot_MSA <- function(MSA){
 aligned_compounds |>
   map(MSA, ~plot_MSA(.x))
 ```
+
 ```{r}
 # Define the plot_MSA function
 plot_MSA <- function(MSA) {
@@ -207,7 +207,6 @@ plot_MSA <- function(MSA) {
 result_list <- aligned_compounds %>%
   mutate(plot_result = map(MSA, plot_MSA))
 ```
-
 
 ```{r}
 hamming_distance <- function(seq1, seq2) {
@@ -248,7 +247,6 @@ aligned_compounds <- aligned_compounds |>
 ```{r}
 print()
 ```
-
 
 ```{r}
 # Function to compute the complete linkage distance between two clusters
@@ -309,8 +307,6 @@ sample_labels <- seq(1, matrix_length)
 text(mds_result, labels=sample_labels, pos=4, cex=0.7)
 ```
 
-
-
 ```{r}
 # Define a custom function to process each element
 process_sequence <- function(alignment_row) {
@@ -365,8 +361,6 @@ print(specific_compound)
 concatenated_string <- paste(hemoAln3_1, collapse = "")
 ```
 
-
-
 ```{r}
 str(hemoAln3)
 ```
@@ -374,7 +368,6 @@ str(hemoAln3)
 ```{r}
 print(alignment)
 ```
-
 
 ## Phylogenetic tree
 
@@ -385,6 +378,7 @@ library(phylocom)
 ```{r}
 consensus_seq <- consensusSequence(alignment)
 ```
+
 ```{r}
 library(Biostrings)
 ```
@@ -393,13 +387,13 @@ library(Biostrings)
 print(alignment)
 ```
 
-
 ```{r}
 # Assuming 'alignment' is your MSA object
 cons_matrix <- consensusMatrix(alignment)
 cons_seq <- consensusString(cons_matrix)
 print(cons_seq)
 ```
+
 ```{r}
 alignedSequences <- msaConvert(alignment, type="AAMultipleAlignment")
 ```
@@ -408,7 +402,6 @@ alignedSequences <- msaConvert(alignment, type="AAMultipleAlignment")
 library("ape")
 library("seqinr")
 ```
-
 
 ```{r}
 # The msa object stores sequences in a list-like structure
@@ -428,13 +421,10 @@ hemoAln4 <- as(alignment, "BStringSet")
 hemoAln4
 ```
 
-
-
 ```{r}
 alignment_object_first_row <- aligned_compounds$AlignedSequences[18]
 alignment <- alignment_object_first_row[[1]]
 ```
-
 
 ```{r}
 msaPrettyPrint(alignment, output="tex", y=c(164, 213),
@@ -465,13 +455,11 @@ sequenceVector <- paste(sequences, collapse = "")
 library(texshade)
 ```
 
-
 ```{r}
 library(seqinr)
 d <- dist.alignment(aligned_compunds$AlignedSequences, "identity")
 #as.matrix(d)[2:5, "HBA1_Homo_sapiens", drop=FALSE]
 ```
-
 
 ```{r}
 
@@ -497,6 +485,7 @@ aligned_compounds <- compound_lists %>%
 # Print or use the aligned sequences and most conserved 9-mers for each compound
 print(aligned_compounds)
 ```
+
 ```{r}
 # Print the conserved 9-mers for each compound
 Conserved9mers <- aligned_compounds %>%
@@ -539,7 +528,6 @@ print(aligned_compounds)
 
 ```
 
-
 ```{r}
 
 library(Biostrings)
@@ -566,5 +554,3 @@ print(aligned_compounds$conserved_aa)
 
 
 ```
-
-
