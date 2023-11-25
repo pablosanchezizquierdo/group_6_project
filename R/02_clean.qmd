@@ -7,6 +7,7 @@ editor: visual
 ## Get data
 
 ```{r}
+#| warning: false
 # Read TSV file into a data frame
 data <- read_delim("../data/data.tsv", delim = "\t", show_col_types = FALSE)
 ```
