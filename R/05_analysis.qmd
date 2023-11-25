@@ -22,7 +22,7 @@ compound_lists <- data_augmented |>
   summarise(ProteinSequences = list(Sequence))
 
 # Print or use the list of sequences for each compound
-print(compound_lists)
+#print(compound_lists)
 
 ```
 
@@ -77,6 +77,57 @@ aligned_compounds <- aligned_compounds |>
   mutate(aligned_sequences = map(MSA, ~msaConvert(.x, type="bios2mds::align"))) |>
   mutate(aligned_sequences = map(aligned_sequences, ~map(.x, ~paste(.x, collapse = ""))))
 ```
+
+## Clustering
+
+### Distance matrix
+
+```{r}
+aligned_compounds <- aligned_compounds |>
+  mutate(distance_matrix = map(MSA, ~msaConvert(.x, type="seqinr::alignment"))) |>
+  mutate(distance_matrix = map(distance_matrix, ~dist.alignment(.x, "identity")))
+```
+
+### Clustering
+
+#### Phylogenetic trees
+
+```{r}
+aligned_compounds <- aligned_compounds |>
+  mutate(phylo_tree = map(distance_matrix, ~njs(.x)))
+```
+
+```{r}
+#map(aligned_compounds$phylo_tree, plot(.x, cex = 0.6))
+map(aligned_compounds$phylo_tree, function(tree) {
+  plot(tree, cex = 0.6)
+})
+```
+
+```{r}
+phylogenetic_tree <- njs(aligned_compounds$distance_matrix[2][[1]])
+plot(phylogenetic_tree, main="Phylogenetic Tree of Hemoglobin Alpha Sequences", cex=0.6)
+```
+
+```{r}
+# Apply Multidimensional Scaling
+mds_result <- cmdscale(aligned_compounds$distance_matrix[5][[1]], k=2) # k is the number of dimensions, usually 2 or 3
+
+# Plotting the result
+plot(mds_result, type="n", xlab="Dimension 1", ylab="Dimension 2", main="MDS Plot")
+text(mds_result, labels=rownames(mds_result), pos=4, cex=0.6)
+matrix_length <- nrow(aligned_compounds$distance_matrix[5][[1]])
+sample_labels <- seq(1, matrix_length)
+text(mds_result, labels=sample_labels, pos=4, cex=0.7)
+```
+
+```{r}
+aligned_compounds <- aligned_compounds |>
+  mutate(phylogenetic_tree = map(distance_matrix, ~njs(.x)))
+#hemoTree <- nj(d)
+#plot(hemoTree, main="Phylogenetic Tree of Hemoglobin Alpha Sequences")
+```
+
 
 ## Core sequences
 
@@ -191,7 +242,7 @@ calculate_distance_matrix <- function(sequences_list) {
 
 ```{r}
 aligned_compounds <- aligned_compounds |>
-  mutate(distance_matrix = map(aligned_sequences, ~calculate_distance_matrix(.x)))
+  mutate(distance_matrix_2 = map(aligned_sequences, ~calculate_distance_matrix(.x)))
 ```
 
 ```{r}
@@ -237,13 +288,13 @@ hierarchical_clustering <- function(dist_matrix) {
 ```
 
 ```{r}
-distance_matrix <- aligned_compounds$distance_matrix[11]
+distance_matrix <- aligned_compounds$distance_matrix_2[2]
 distance_matrix_2 <- distance_matrix[[1]]
 class(distance_matrix_2)
 #aligned_compounds$distance_matrix[1]
 is.matrix(distance_matrix_2)
-clusters <- hierarchical_clustering(distance_matrix_2)
-print(clusters)
+#clusters <- hierarchical_clustering(distance_matrix_2)
+#print(clusters)
 ```
 
 ```{r}
