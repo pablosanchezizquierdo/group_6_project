@@ -107,7 +107,7 @@ unique_values_EcondingGene <- data_reduced |>
   select("Encoding Gene") |> 
   distinct() 
 
-count(unique_values_EcondingGene)
+dplyr::count(unique_values_EcondingGene)
 ```
 
 ```{r}
@@ -138,14 +138,14 @@ data_reduced <- data_reduced |>
 unique_values_EcondingGene_clean <- data_reduced |> 
   select("Encoding Gene") |> 
   distinct() 
-count(unique_values_EcondingGene_clean)
+dplyr::count(unique_values_EcondingGene_clean)
 ```
 
 ### Continent:
 
 ```{r}
-data_reduced <-data_reduced |> 
-  rename("Continent where study sampling was done (Collections)" = "Continent")
+data_reduced <- data_reduced |> 
+  rename(Continent = `Continent where study sampling was done (Collections)`)
 ```
 
 ```{r}
@@ -476,7 +476,7 @@ Now, we delete spaces between words in variables name to avoid analysis problems
 
 ```{r}
 data_reduced <- data_reduced |>
-  rename("Compound Name" = "Compound_Name", "Enzyme Name" = "Enzyme_Name", "Encoding Gene" = "Encoding_Gene", "KEGG Orthology" = "KEGG_Orthology", "Strain ID/Microorganism" = "Strain_ID/Microorganism", "Protein ID" = "Protein_ID")
+  rename("Compound_Name" = "Compound Name", "Enzyme_Name" = "Enzyme Name", "Encoding_Gene" = "Encoding Gene", "KEGG_Orthology" = "KEGG Orthology", "Strain_ID/Microorganism" = "Strain ID/Microorganism", "Protein_ID" = "Protein ID")
 ```
 
 ## Save cleaned data
