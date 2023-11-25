@@ -15,25 +15,65 @@ data_augmented <- read_tsv(tsv_file, show_col_types = FALSE)
 
 ```{r}
 # Enhanced stacked bar chart with ggplot2
-ggplot(data_augmented |> 
-         filter(!is.na(Compound_Name) & !is.na(Pathway_Info)) |> 
-         count(Compound_Name, Pathway_Info) |> 
-         group_by(Compound_Name) |> 
-         mutate(Proportion = n / sum(n)), 
-       aes(fill = Pathway_Info, y = Proportion, x = Compound_Name)) +
-  geom_bar(position = "fill", stat = "identity") +
-  scale_fill_viridis_d() + # Using viridis color palette for better color distinction
-  theme_minimal() + # Minimalist theme
+plotx <- ggplot(data_augmented |> 
+             filter(!is.na(Compound_Name) & !is.na(Pathway)) |> 
+             dplyr::count(Compound_Name, Pathway) |> 
+             group_by(Compound_Name) |> 
+             mutate(Proportion = n / sum(n)), 
+           aes(fill = Pathway, y = Proportion, x = Compound_Name)) +
+      geom_bar(position = "fill", stat = "identity") +
+      scale_fill_viridis_d() +
+      theme_minimal() +
+      theme(
+        axis.text.x = element_text(angle = 65, vjust = 1, hjust=1, size = 8, color = "black"),
+        axis.text.y = element_text(size = 10, color = "black"),
+        axis.title = element_text(size = 10, face = "bold"),
+        plot.title = element_text(hjust = 0.5, size = 14, face = "bold"),
+        legend.text = element_text(size = 8),
+        legend.title = element_text(size = 10),
+        
+        ) +
+      guides(fill = guide_legend(override.aes = list(size = 2))) +
+      labs(
+        title = "Proportion of Pathways for Each Compound",
+        x = "Compound",
+        y = "Proportion",
+        fill = "Pathway"
+      )
+
+
+# Save the plot as a PNG file in the 'results' folder
+ggsave("../results/compound_pathways_plot.png", plotx, width = 12, height = 8, units = "in")
+```
+
+```{r}
+# Remove duplicates based on Compound_Name and Pathway, then count the occurrences of each pathway
+pathway_counts <- data_augmented |> 
+  filter(!is.na(Pathway)) |> 
+  distinct(Compound_Name, Pathway, .keep_all = TRUE) %>%  # Remove duplicates
+  count(Pathway) |> 
+  arrange(desc(n))
+
+# Create the barplot
+pathway_barplot <- ggplot(pathway_counts, aes(x = reorder(Pathway, n), y = n)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +  # Flips the axes to make long labels readable
+  theme_minimal() +
   theme(
-    axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 8, color = "black"),
-    axis.text.y = element_text(size = 8, color = "black"),
-    axis.title = element_text(size = 10, face = "bold"),
-    plot.title = element_text(hjust = 0.5, size = 14, face = "bold")
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_text(size = 12, face = "bold"),
+    axis.title.y = element_text(size = 12, face = "bold")
   ) +
   labs(
-    title = "Proportion of Pathways for Each Compound",
-    x = "Compound",
-    y = "Proportion",
-    fill = "Pathway"
+    title = "Most Used Pathways",
+    x = "Pathway",
+    y = "Frequency"
   )
+
+# Print the barplot
+print(pathway_barplot)
+
+# Save the barplot to a file
+ggsave("../results/most_used_pathways.png", plot = pathway_barplot, width = 10, height = 8, dpi = 300)
 ```
+
