@@ -109,6 +109,13 @@ phylogenetic_tree <- njs(aligned_compounds$distance_matrix[2][[1]])
 plot(phylogenetic_tree, main="Phylogenetic Tree of Hemoglobin Alpha Sequences", cex=0.6)
 ```
 
+Sequence logo
+
+```{r}
+
+```
+
+
 ```{r}
 # Apply Multidimensional Scaling
 mds_result <- cmdscale(aligned_compounds$distance_matrix[5][[1]], k=2) # k is the number of dimensions, usually 2 or 3
@@ -164,6 +171,40 @@ aligned_compounds <- aligned_compounds |>
   mutate(conMat = map(MSA, ~consensusMatrix(.x))) |>
   mutate(mer_position = map(conMat, ~mer_position_function(.x)))
 ```
+
+
+```{r}
+aligned_compounds <- aligned_compounds |>
+  mutate(extracted_chars = map(aligned_sequences, ~map(.x, ~str_sub(.x, 6, 6 + 8))))
+```
+
+
+```{r}
+aligned_compounds <- aligned_compounds |>
+  mutate(extracted_chars = map2(aligned_sequences, mer_position, ~map2(.x, rep(.y, length(.x)), ~str_sub(., .y, .y + 8)))) |>
+  mutate(extracted_chars = map(extracted_chars, ~unlist(.x)))
+
+aligned_compounds <- aligned_compounds |>
+  mutate(seqlogo = map(extracted_chars, ~ggseqlogo(.x, seq_type = "aa")))
+```
+
+```{r}
+aligned_compounds$seqlogo[5]
+```
+
+```{r}
+aligned_compounds <- aligned_compounds |>
+  mutate(extracted_chars = map2(aligned_sequences, mer_position, ~map(.x, ~str_sub(., .y, .y + 8))))
+
+aligned_compounds <- aligned_compounds |>
+  mutate(seqlogo = map(extracted_chars, ~ggseqlogo(.x, seq_type = "aa")))
+```
+
+```{r}
+aligned_compounds <- aligned_compounds |>
+  mutate(extracted_chars = map2(aligned_sequences[[1]], mer_position, ~map_chr(.x, ~substr(., .y, .y + 8))))
+```
+
 
 ## Plotting MSA
 
