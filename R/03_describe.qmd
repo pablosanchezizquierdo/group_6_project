@@ -8,7 +8,7 @@ editor: visual
 
 ```{r}
 # Read TSV file into a data frame
-data_clean <- read_delim("../data/clean_data.tsv", delim = "\t", show_col_types = FALSE)
+data_clean <- read_delim("../data/data_clean.tsv", delim = "\t", show_col_types = FALSE)
 
 ```
 
@@ -19,7 +19,7 @@ In this section we want to inspect the distribution of organisms across the data
 ```{r}
 # Calculate percentages of organisms
 organism_percentages <- data_clean |> 
-  count(Organism) |> 
+  dplyr::count(Organism) |> 
   mutate(Percentage = n / sum(n) * 100)
 
 # Pie chart with organisms percentages 
@@ -56,7 +56,7 @@ In this section we want to explore whether there are organisms that affect some 
 temp_bacteria_data <- data_clean  |>  filter(Organism == 'Bacteria') 
 
 # Plot bar chart of compounds against the current organism
-plot_bacteria_compound <- ggplot(temp_bacteria_data, aes(x = `Compound Name`, fill = `Compound Name`)) +
+plot_bacteria_compound <- ggplot(temp_bacteria_data, aes(x = `Compound_Name`, fill = `Compound_Name`)) +
   geom_bar(position = "dodge") +
   geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, position = position_dodge(0.9), size = 2) +  # Add count labels
   labs(title = paste("Compounds Distribution -", "Becteria"), x = "Compound Name", y = "Count") +
@@ -90,7 +90,7 @@ In the plot we see that bacteria influence all compounds, yet certain compounds 
 temp_eukaryota_data <- data_clean  |>  filter(Organism == 'Eukaryota') 
 
 # Plot bar chart of compounds against eukaryota
-plot_eukaryota_compound <- ggplot(temp_eukaryota_data, aes(x = `Compound Name`, fill = `Compound Name`)) +
+plot_eukaryota_compound <- ggplot(temp_eukaryota_data, aes(x = `Compound_Name`, fill = `Compound_Name`)) +
   geom_bar(position = "dodge") +
   geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, position = position_dodge(0.9), size = 3) +  # Add count labels
   labs(title = paste("Compounds Distribution -", "Eukaryota"), x = "Compound Name", y = "Count") +
@@ -118,7 +118,7 @@ Previously, we observed that eukaryota constituted a very small portion of the o
 temp_fungi_data <- data_clean  |>  filter(Organism == 'Fungi') 
 
 # Plot bar chart of compounds against the fungi
-plot_fungi_compound <- ggplot(temp_fungi_data, aes(x = `Compound Name`, fill = `Compound Name`)) +
+plot_fungi_compound <- ggplot(temp_fungi_data, aes(x = `Compound_Name`, fill = `Compound_Name`)) +
   geom_bar(position = "dodge") +
   geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, position = position_dodge(0.9), size = 3) +  # Add count labels
   labs(title = paste("Compounds Distribution -", "Fungi"), x = "Compound Name", y = "Count") +
@@ -144,7 +144,7 @@ We observe that fungi affect to three compounds. Nonetheless, bacteria also affe
 
 ```{r}
 # Stacked bar plot of genes and compounds
-plot2 <- ggplot(data_clean, aes(x = `Compound Name`, fill = `Encoding Gene`)) +
+plot2 <- ggplot(data_clean, aes(x = `Compound_Name`, fill = `Encoding_Gene`)) +
   geom_bar(position = "stack") +
   labs(title = "Genes Count for Each Compound", x = "Compound Name", y = "Count") +
   theme_minimal() +
@@ -175,7 +175,7 @@ In the plot we cannot distinguish the genes properly for each compound. However,
 ```{r}
 # Create a new dataframe with a column indicating whether 'Uncultured' is present or not
 temp_uncultured <- data_clean |> 
-  mutate(Has_Uncultured = str_detect(`Strain ID/Microorganism`, "Uncultured"))
+  mutate(Has_Uncultured = str_detect(`Strain_ID/Microorganism`, "Uncultured"))
 
 
 # Compute percentages for strings containing 'uncultured' and the ones that do not

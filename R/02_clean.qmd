@@ -7,12 +7,9 @@ editor: visual
 ## Get data
 
 ```{r}
+#| warning: false
 # Read TSV file into a data frame
-
-all_sheets <- read_delim("../data/all_sheets.tsv", delim = "\t", show_col_types = FALSE)
-
-
-
+data <- read_delim("../data/data.tsv", delim = "\t", show_col_types = FALSE)
 ```
 
 ## Select key variables (columns)
@@ -21,12 +18,7 @@ We can dispense with many variables in this data set containing information that
 
 ```{r}
 # Define the columns you want to keep
-<<<<<<< HEAD
-columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orthology", "Organism", "GenBankID", "Strain ID/Microorganism", "UniProt ID", "Protein ID", "Continent where study sampling was done (Collections)", "Country", "Isolation source", "Habitat notes")  
 
-# Subset the 'all_sheets' data frame to keep only the specified columns
-selected_columns <- all_sheets |> select(all_of(columns_to_keep))
-=======
 columns_to_keep <- c("Compound Name", 
                      "Enzyme Name", 
                      "Encoding Gene", 
@@ -44,8 +36,6 @@ columns_to_keep <- c("Compound Name",
 data_reduced <- data |> 
   select(all_of(columns_to_keep))
 
-
->>>>>>> 9c60d1c8b2f3dc2b30b3cbf4e4e9ff6d673c6c3a
 ```
 
 ## Visualize how many NA values we have
@@ -91,11 +81,11 @@ ggplot(missing_data,
 ```
 
 We can see how the variables with data related to location and the "Protein ID" and the "UniProt ID" variable are the ones with the most number of NA values. Knowing this, we are going to eliminate the columns with the most amount of NA except for "KEGG Orthology" since we are going to work with that in the future.
+
 ```{r}
 data_reduced <- data_reduced |> 
   select(-c(`Habitat notes`, `Isolation source`, `UniProt ID`))
 ```
-
 
 ## Fixing naming conventions
 
@@ -113,7 +103,7 @@ unique_values_EcondingGene <- data_reduced |>
   select("Encoding Gene") |> 
   distinct() 
 
-count(unique_values_EcondingGene)
+dplyr::count(unique_values_EcondingGene)
 ```
 
 ```{r}
@@ -144,14 +134,14 @@ data_reduced <- data_reduced |>
 unique_values_EcondingGene_clean <- data_reduced |> 
   select("Encoding Gene") |> 
   distinct() 
-count(unique_values_EcondingGene_clean)
+dplyr::count(unique_values_EcondingGene_clean)
 ```
 
 ### Continent:
 
 ```{r}
-data_reduced <-data_reduced |> 
-  rename("Continent where study sampling was done (Collections)" = "Continent")
+data_reduced <- data_reduced |> 
+  rename(Continent = `Continent where study sampling was done (Collections)`)
 ```
 
 ```{r}
@@ -440,7 +430,9 @@ unique_countries2
 ```
 
 ### Compound Name:
+
 Again, here we have compound names that should be the same but have different annotations.
+
 ```{r}
 # First, let's have a look at what we have:
 unique_values_compound <- data_reduced |> 
@@ -448,13 +440,55 @@ unique_values_compound <- data_reduced |>
   distinct() 
 unique_values_compound
 ```
+
+The names that we should change are: - 'Hexachlorobenzene (HCB)' and 'Hexachlorobenzene' should be the same category. - 'Pentachlorobenzene' and 'Pentachlorbenzene' should be the same category too.
+
+```{r}
+# Sample conditions list
+conditions_list3 <- data.frame(
+  FromCompound = c("Hexachlorobenzene", 
+                   "Pentachlorbenzene"),
+  ToCompound = c("Hexachlorobenzene (HCB)", 
+                 "Pentachlorobenzene"))
+
+# Join the data frame with the conditions list and update values in "Continent"
+data_reduced <- data_reduced |> 
+  left_join(conditions_list3, 
+            by = c("Compound Name" = "FromCompound")) |> 
+  mutate(`Compound Name` = ifelse(!is.na(ToCompound),
+                                   ToCompound, 
+                                   `Compound Name`)) |> 
+  select(-ToCompound)
+
+```
+
+```{r}
+# Let's have a look at what we have now:
+unique_values_compound <- data_reduced |> 
+  select("Compound Name") |> 
+  distinct() 
+unique_values_compound
+```
+
 ## Rename variables
+
 Now, we delete spaces between words in variables name to avoid analysis problems
 
 ```{r}
 data_reduced <- data_reduced |>
-  rename("Compound Name" = "Compound_Name", "Enzyme Name" = "Enzyme_Name", "Encoding Gene" = "Encoding_Gene", "KEGG Orthology" = "KEGG_Orthology", "Strain ID/Microorganism" = "Strain_ID/Microorganism", "Protein ID" = "Protein_ID")
+  rename("Compound_Name" = "Compound Name", "Enzyme_Name" = "Enzyme Name", "Encoding_Gene" = "Encoding Gene", "KEGG_Orthology" = "KEGG Orthology", "Strain_ID/Microorganism" = "Strain ID/Microorganism", "Protein_ID" = "Protein ID")
 ```
+
+### KEGG Orhology with spaces in ID
+
+As we will use KEGG ID for further analyisis we need to make sure that there anre no spaces at the end of the ID because it might generate some errors.
+
+```{r}
+#Trim whitespace from KEGG_Orthology IDs in the data
+data_reduced <- data_reduced |> 
+    mutate(KEGG_Orthology = substr(KEGG_Orthology, 1, 6))
+```
+
 
 ## Save cleaned data
 

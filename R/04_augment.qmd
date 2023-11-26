@@ -48,59 +48,31 @@ data_augmented <- left_join(data_clean, seq_df, by = "Protein_ID")
 
 ```{r}
 
-# Initialize variables to store the last KEGG ID and its corresponding pathway
-last_kegg_id <- ""
-last_pathway_info <- NA
-
-# Define the function to fetch KEGG pathway names based on the position relative to "09100 Metabolism"
-get_kegg_pathway_name <- function(kegg_id) {
-  # Handle NA KEGG IDs
-  if (is.na(kegg_id)) {
-    return(NA)
-  }
-
-  if (kegg_id == last_kegg_id) {
-    return(last_pathway_info)
-  }
-
-  tryCatch({
-    brite_info <- keggGet(kegg_id)
-
-    if ("BRITE" %in% names(brite_info[[1]])) {
-      brite_section <- brite_info[[1]]$BRITE
-      metabolism_index <- which(grepl("09100 Metabolism", brite_section))
-      
-      if (length(metabolism_index) > 0 && metabolism_index < length(brite_section)) {
-        # Extract the pathway information and remove numerical prefix
-        pathway_info <- brite_section[metabolism_index + 1]
-        pathway_info <- sub("^[0-9]+[[:space:]]+", "", pathway_info)
-        
-        # Store in global variables for reuse
-        last_kegg_id <<- kegg_id
-        last_pathway_info <<- pathway_info
-        
-        return(pathway_info)
-      }
+# Function to retrieve the first pathway for a given KO ID
+get_first_pathway_name <- function(ko_id) {
+    pathway_info <- tryCatch({
+        keggGet(ko_id)
+    }, error = function(e) return(NA))
+    
+    if (!is.na(pathway_info) && !is.null(pathway_info[[1]]$PATHWAY)) {
+        # Extracting only the first pathway name
+        first_pathway_name <- pathway_info[[1]]$PATHWAY[[1]]
+    } else {
+        first_pathway_name <- NA
     }
-
-    # Store NA for this KEGG ID and return NA
-    last_kegg_id <<- kegg_id
-    last_pathway_info <<- NA
-    return(NA)
-  }, error = function(e) {
-    # In case of an error, store NA for this KEGG ID and return NA
-    last_kegg_id <<- kegg_id
-    last_pathway_info <<- NA
-    return(NA)
-  })
+    return(first_pathway_name)
 }
 
-# Apply the function to the entire dataset
+# Extract unique KO IDs with their first pathways
+unique_ko_pathways <- data_augmented |> 
+    distinct(KEGG_Orthology) |> 
+    mutate(Pathway = map_chr(KEGG_Orthology, get_first_pathway_name))
+
+# Join this with the original data frame
 data_augmented <- data_augmented |> 
-  mutate(Pathway_Info = map_chr(KEGG_Orthology, get_kegg_pathway_name))
+    left_join(unique_ko_pathways, by = "KEGG_Orthology")
 
 ```
-
 
 ## Save cleaned data
 
