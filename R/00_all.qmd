@@ -19,6 +19,7 @@ library("msa")
 library("KEGGREST")
 library("ape")
 library("seqinr")
+library("ggseqlogo")
 ```
 
 # Creating directories
