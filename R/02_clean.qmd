@@ -141,7 +141,7 @@ dplyr::count(unique_values_EcondingGene_clean)
 
 ```{r}
 data_reduced <- data_reduced |> 
-  rename(Continent = `Continent where study sampling was done (Collections)`)
+  dplyr::rename(Continent = `Continent where study sampling was done (Collections)`)
 ```
 
 ```{r}
@@ -476,7 +476,7 @@ Now, we delete spaces between words in variables name to avoid analysis problems
 
 ```{r}
 data_reduced <- data_reduced |>
-  rename("Compound_Name" = "Compound Name", "Enzyme_Name" = "Enzyme Name", "Encoding_Gene" = "Encoding Gene", "KEGG_Orthology" = "KEGG Orthology", "Strain_ID/Microorganism" = "Strain ID/Microorganism", "Protein_ID" = "Protein ID")
+  dplyr::rename("Compound_Name" = "Compound Name", "Enzyme_Name" = "Enzyme Name", "Encoding_Gene" = "Encoding Gene", "KEGG_Orthology" = "KEGG Orthology", "Strain_ID/Microorganism" = "Strain ID/Microorganism", "Protein_ID" = "Protein ID")
 ```
 
 ### KEGG Orhology with spaces in ID
@@ -488,7 +488,6 @@ As we will use KEGG ID for further analyisis we need to make sure that there anr
 data_reduced <- data_reduced |> 
     mutate(KEGG_Orthology = substr(KEGG_Orthology, 1, 6))
 ```
-
 
 ## Save cleaned data
 

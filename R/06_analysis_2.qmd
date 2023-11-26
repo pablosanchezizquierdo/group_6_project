@@ -79,4 +79,3 @@ pathway_barplot <- ggplot(pathway_counts, aes(x = Pathway, y = n, fill = n)) +
 # Save the barplot to a file
 ggsave("../results/most_used_pathways.png", plot = pathway_barplot, width = 10, height = 8, dpi = 300)
 ```
-
