@@ -81,7 +81,7 @@ ggplot(missing_data,
        x = "Column", 
        y = "Percentage") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-  theme(axis.text.x = element_text(angle = 45, 
+  theme(axis.text.x = element_text(angle = 90, 
                                    hjust = 1))
 
 ```
