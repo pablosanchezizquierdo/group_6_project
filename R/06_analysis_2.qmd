@@ -52,7 +52,7 @@ plot_kegg <- ggplot(data_augmented |>
 
 
 # Save the plot as a PNG file in the 'results' folder
-ggsave("../results/compound_pathways_plot.png", plot_kegg, width = 12, height = 8, units = "in")
+ggsave("../results/compound_pathways_plot.png", plot_kegg, width = 12, height = 8, units = "in", dpi = 300)
 ```
 
 From this plot we can observe which are the most common used pathways to biodegrade each compound, we can observe that there are some pathways that are commonly used for all the compounds, in the next graph its seen more clearly.
@@ -89,7 +89,7 @@ pathway_barplot <- ggplot(pathway_counts, aes(x = Pathway, y = n, fill = n)) +
   guides(fill = guide_colourbar(title = "Count")) + # Add a colorbar guide
   scale_y_continuous(limits = c(0, 15)) # Set y-axis limits
 
-ggsave("../results/most_used_pathways.png", pathway_barplot, width = 12, height = 8, units = "in")
+ggsave("../results/most_used_pathways.png", pathway_barplot, width = 12, height = 8, units = "in", dpi = 300)
 ```
 
 In this graphic we can see that the most used pathways are the chlorocyclohexane and chlorobenzene degradation and the benzoate degradation. In the future, this information can be used to find new organisms that are able to biodegrade this compounds, we only need to search more organisms that are involved in this pathways. Also, it means that all the compounds that we want to biodegrade are very rich in this compounds.
