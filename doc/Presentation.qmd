@@ -114,8 +114,8 @@ We will do our study only with **Bacteria** samples.
 
 ## RESULTS: Orthology Analysis
 
-![](../results/compound_pathways_plot.png)
-![](../results/most_used_pathways.png)
+![](../results/compound_pathways_plot.png){.absolute top="125" left="-100" width="700" height="500"}
+![](../results/most_used_pathways.png){.absolute top="125" left="600" width="600" height="500"}
 
 ## RESULTS: Sequence Analysis
 
@@ -123,13 +123,34 @@ KLK?
 
 ## CONCLUSIONS {.smaller}
 
-::: {.incremental}
+
+::: {.fragment fragment-index=1}
 1) Bioremediation organisms studied up to date are **mainly Bacteria**
+
+:::
+
+::: {.fragment fragment-index=2}
+
 2) There are still **a lot of countries to be explored**
+
+::: 
+::: {.fragment fragment-index=3}
+
 3) **Chlorocyclohexane and chlorobenzene degradation pathway** is involved in the bioremediation of many POP compounds
+
+::: 
+
+::: {.fragment fragment-index=4}
+
 4) **Core sequence LOGO for genes degrading the same compounds** have been determined by multiple sequence alignment
+
+:::
+
+::: {.fragment fragment-index=5}
+
 5) Core sequence LOGO are very different depending on what compound they target and they can be **grouped by proximity** by performing a phylogenetic tree analysis
 :::
+
 
 ## THANK YOU! Microbial bioremediation of persistent organic pollutants (POP) {.center .smaller}
 <style>

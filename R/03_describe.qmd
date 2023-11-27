@@ -199,7 +199,7 @@ data_clean <- data_clean |>
 output_file_path <- "../data/data_clean.tsv"
 
 # Save the subset data frame to a .tsv file
-write.table(data_reduced, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(data_clean, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
 
 # Verify that the file has been saved
 if (file.exists(output_file_path)) {
