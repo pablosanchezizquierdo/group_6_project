@@ -1,32 +1,25 @@
 ---
 title: "03_describe.qmd"
-format: html
+format: 
+  html:
+    embed-resources: true
 editor: visual
 ---
+
+## Load libraries:
+```{r}
+#| message: false
+library("tidyverse")
+library("maps")
+```
 
 ## Import Clean Data
 
 ```{r}
-#| message: false
-library("tidyverse")
-#library("dplyr")
-#library("stringr")
-#library("tidyr")
-library("readxl")
-#library("purrr")
-library("Biostrings")
-library("msa")
-library("KEGGREST")
-library("ape")
-library("seqinr")
-library("ggseqlogo")
-library("quarto")
-
 # Read TSV file into a data frame
 data_clean <- read_delim("../data/data_clean.tsv", 
                          delim = "\t", 
                          show_col_types = FALSE)
-
 ```
 
 ## Organism distribution
@@ -284,9 +277,6 @@ It is very interesting to see that many entries for the "Strain/Microorganism" v
 
 ## Heat map of Organisms at each Country
 ```{r}
-# We need to use another library called "maps":
-library(maps)
-
 world <- map_data("world")
 
 # First, we select the "Country" variable from data_clean and count how many times each country appears:
