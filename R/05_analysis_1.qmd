@@ -11,6 +11,7 @@ editor: visual
 Load libraries
 
 ```{r}
+#| message: false
 library("tidyverse")
 library("Biostrings")
 library("msa")
@@ -125,9 +126,9 @@ aligned_compounds <- aligned_compounds |>
 ```{r}
 aligned_compounds$seqlogo
 ```
+
 ```{r}
 Hexabromobiphenyl_seqlogo <- aligned_compounds$seqlogo[5][[1]]
 
 ggsave("../results/seqlogo.png", Hexabromobiphenyl_seqlogo)
 ```
-
