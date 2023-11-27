@@ -26,7 +26,7 @@ library("quarto")
 quarto::quarto_render(
   "00_all.qmd", 
   output_format = "html")
-file.rename("00_all.html", "../results/00_all.html"
+file.rename("00_all.html", "../results/00_all.html")
 # Run 01_load file and save it as .html in the results folder
 quarto::quarto_render(
   "01_load.qmd", 
