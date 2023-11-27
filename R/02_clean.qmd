@@ -440,8 +440,6 @@ unique_values_compound <- data_reduced |>
 unique_values_compound
 ```
 
-<<<<<<< HEAD
-=======
 The names that we should change are: - 'Hexachlorobenzene (HCB)' and 'Hexachlorobenzene' should be the same category. - 'Pentachlorobenzene' and 'Pentachlorbenzene' should be the same category too.
 
 ```{r}
@@ -471,7 +469,6 @@ unique_values_compound <- data_reduced |>
 unique_values_compound
 ```
 
->>>>>>> 40f60867da58e3761acd352c87c720df37c5d909
 ## Rename variables
 
 Now, we delete spaces between words in variables name to avoid analysis problems

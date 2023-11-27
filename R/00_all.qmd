@@ -20,6 +20,7 @@ library("KEGGREST")
 library("ape")
 library("seqinr")
 library("ggseqlogo")
+library("quarto")
 ```
 
 # Creating directories
@@ -28,4 +29,33 @@ library("ggseqlogo")
 #dir.create("../data/_raw", recursive = TRUE)
 #dir.create("../results")
 #dir.create("../doc")
+```
+
+# Run pipeline
+
+```{r}
+# Quarto file names of our pipeline
+input_files <- c("01_load.qmd", "02_clean.qmd", "03_describe.qmd", "04_augment.qmd", "05_analysis_1.qmd", "06_analysis_2.qmd")
+# HTML file names where we want to store our final results
+output_files <- c("01_load.html", "02_clean.html", "03_describe.html", "04_augment.html", "05_analysis_1.html", "06_analysis_2.html")
+
+# Loop through the files, run them and store them in the results folder in .html format
+map(input_files, output_files, function(input_file, output_file) {
+  quarto::quarto_render(
+    input_file, 
+    output_format = "html", 
+    output_file = paste0("../results/", output_file)
+  )
+})
+```
+
+# Saving HTML
+
+```{r}
+quarto::quarto_render(
+  "00_all.qmd", 
+  output_format = "html", 
+  output_file = "../results/00_all.html")
+
+
 ```
