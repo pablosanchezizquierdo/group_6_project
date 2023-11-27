@@ -77,8 +77,9 @@ plot_bacteria_compound <- ggplot(temp_bacteria_data, aes(x = `Compound_Name`, fi
   guides(fill = guide_legend(ncol = 5)) # We want the legend to have 5 cols
 
 # Save the current plot as a PNG file
-ggsave(paste0("../results/", "bacteria_vs_compounds_distribution.png"), plot_bacteria_compound, width = 10, height = 6, dpi = 300)
+#ggsave(paste0("../results/", "bacteria_vs_compounds_distribution.png"), plot_bacteria_compound, width = 10, height = 6, dpi = 300)
 
+plot_bacteria_compound
 ```
 
 In the plot we see that bacteria influence all compounds, yet certain compounds are more significantly impacted than others. However, it is important to delve deeper into this observation, as it could be attributed to a lack of data for other compounds. Thus, it appears that some compounds have greater influence than others, but further investigation would be needed to ascertain the underlying reasons.
@@ -105,8 +106,8 @@ plot_eukaryota_compound <- ggplot(temp_eukaryota_data, aes(x = `Compound_Name`, 
   )
 
 # Save the current plot as a PNG file
-ggsave(paste0("../results/", "eukaryota_vs_compounds_distribution.png"), plot_eukaryota_compound, width = 10, height = 6, dpi = 300)
-
+#ggsave(paste0("../results/", "eukaryota_vs_compounds_distribution.png"), plot_eukaryota_compound, width = 10, height = 6, dpi = 300)
+plot_eukaryota_compound
 ```
 
 Previously, we observed that eukaryota constituted a very small portion of the overall dataset. Nonetheless, we decided to create a plot relating it with compounds to see whether there was a specific compound uniquely influenced by eukaryota. However, it became apparent that this is not the scenario. In fact, eukaryota only has an impact on the DDT compound, which is predominantly affected by bacteria and is also influenced by fungi (see next section).
@@ -133,7 +134,8 @@ plot_fungi_compound <- ggplot(temp_fungi_data, aes(x = `Compound_Name`, fill = `
   guides(fill = guide_legend(ncol = 1)) # We want the legend to have 1 cols
 
 # Save the current plot as a PNG file
-ggsave(paste0("../results/", "fungi_vs_compounds_distribution.png"), plot_fungi_compound, width = 10, height = 6, dpi = 300)
+#ggsave(paste0("../results/", "fungi_vs_compounds_distribution.png"), plot_fungi_compound, width = 10, height = 6, dpi = 300)
+plot_fungi_compound
 ```
 
 We observe that fungi affect to three compounds. Nonetheless, bacteria also affect to those compounds. We would need more data to extract any conclusions, hence, from now on, we will focus on just analyzing bacteria data.
@@ -204,7 +206,8 @@ uncult_nonuncult <- ggplot(percentage_table_long, aes(x = "", y = Percentage, fi
 
 
 # Save the plot as a PNG file
-ggsave("../results/uncultured_vs_nonuncultured_microorganisms.png", uncult_nonuncult, width = 10, height = 6, dpi = 300)
+#ggsave("../results/uncultured_vs_nonuncultured_microorganisms.png", uncult_nonuncult, width = 10, height = 6, dpi = 300)
+uncult_nonuncult
 ```
 
 -   EXPLAIN
