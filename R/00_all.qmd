@@ -54,5 +54,5 @@ quarto::quarto_render("07_analysis_3.qmd")
 file.rename("07_analysis_3.html", "../results/07_analysis_3.html")
 
 # Run Presentation file and save it as .html in the results folder
-quarto::quarto_render("../doc/Presentation.qmd")
+quarto::quarto_render("../doc/presentation.qmd")
 ```
