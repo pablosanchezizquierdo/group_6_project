@@ -114,8 +114,8 @@ We will do our study only with **Bacteria** samples.
 
 ## RESULTS: Orthology Analysis
 
-![](../results/compound_pathways_plot.png)
-![](../results/most_used_pathways.png)
+![](../results/compound_pathways_plot.png){.absolute top="125" left="-100" width="700" height="500"}
+![](../results/most_used_pathways.png){.absolute top="125" left="600" width="600" height="500"}
 
 ## RESULTS: Sequence Analysis
 
