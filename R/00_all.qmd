@@ -50,8 +50,7 @@ file.rename("04_augment.html", "../results/04_augment.html")
 # Run 05_analysis_1 file and save it as .html in the results folder
 quarto::quarto_render(
   "05_analysis_1.qmd", 
-  output_format = "html", 
-  output_file = "../results/05_analysis_1.html")
+  output_format = "html")
 file.rename("05_analysis_1.html", "../results/05_analysis_1.html")
 
 # Run 06_analysis_2 file and save it as .html in the results folder
@@ -59,15 +58,4 @@ quarto::quarto_render(
   "06_analysis_2.qmd", 
   output_format = "html")
 file.rename("06_analysis_2.html", "../results/06_analysis_2.html")
-```
-
-# Saving HTML
-
-```{r}
-quarto::quarto_render(
-  "00_all.qmd", 
-  output_format = "html", 
-  output_file = "../results/00_all.html")
-
-
 ```

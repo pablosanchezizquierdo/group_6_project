@@ -1,12 +1,14 @@
 ---
-title: "Group 6: Microbial bioremediation of persistent organic pollutants (POP)"
+title: "Microbial bioremediation of persistent organic pollutants (POP)"
+subtitle: "Group 6: Javier López, Pablo Sánchez-Izquierdo, Víctor Fiérrez and Laura Casanovas"
+institute: "Technical University of Denmark (DTU)"
 format:
   revealjs: 
     slide-number: true
     theme: sky
     transition: slide 
-    logo: "DTU_logo.png"
-    footer: "R for Bio Data Science 2023"
+    logo: "logos/DTU_logo.png"
+    footer: "R for Bio Data Science 28-11-2023"
 ---
 
 ## What is bioremediation?
@@ -15,42 +17,120 @@ format:
 ::: {.fragment fragment-index=1}
 
 
-![](climatechange.png){.absolute top="150" left="0" width="500" height="500" responsive="true"} 
+![](logos/climatechange.png){.absolute top="150" left="0" width="500" height="500" responsive="true"} 
 
 :::
 
 ::: {.fragment fragment-index=2}
-![](bioremediation.png){.absolute top="150" left="500" width="600" height="500" responsive="true"}
+![](logos/bioremediation.png){.absolute top="150" left="500" width="600" height="500" responsive="true"}
 :::
 
 ::: {.fragment fragment-index=3}
 
-![](cross.png){.absolute top="220" left="820" width="300" height="300"}
+![](logos/cross.png){.absolute top="220" left="820" width="300" height="300"}
 
 :::
 
-## OUR DATASET + GOAL
+## OUR DATA {.smaller}
 
-- POP (persistent organic pollutants): attractive, ecofriendly, and cost-efficient clean-up technique for reclaiming POP-contaminated environments.
--   size, attributes, etc
--   goal
+::: {.fragment fragment-index=1}
 
-## CLEANING
+POP (persistent organic pollutants): clean-up technique for reclaiming POP-contaminated environments. It is attractive, eco-friendly and cost-efficient. 
 
--   Que vam canviar i perq? quines cols ens qedem?
 
-## DATA EXPLORATION 1
+:::
 
--   ...
 
-## DATA EXPLORATION 2
+::: {.fragment fragment-index=2}
 
--   ...
+Manually curated integrative database dedicated to microbial bioremediation of persistent organic pollutants (POP) research. 
 
-## NEW VARIABLES
+:::
 
--   Explicar el q vam fer en el augment
+::: {.fragment fragment-index=3}
+- **Genes** <!--# : POP metabolizing microbial strains identified to possess the functional genes associated with the POP biodegradation processes collected from the scientific literature and public databases. -->
+- Strains
+- **Sequences** (Complementary) <!--#: Nucleotide and protein sequences of the POP degrading microbial strains collected in this database. -->
+- Compound
+- Calculated properties 01
 
-## RESULTS
+:::
 
-![](../results/bacteria_vs_compounds_distribution.png){.absolute top="200" left="0" width="350" height="300"}
+::: {.fragment fragment-index=4}
+We added the **corresponding sequence** to each sample. 
+::: 
+
+::: {.fragment fragment-index=5}
+**Final dataset size**:  5733 observations of 12 variables
+:::
+
+## GOAL {.center}
+
+
+**Elucidate patterns within organisms with bioremediation potential. To promote more effective and sustainable solutions.**
+
+![](logos/healtyplanet.png){.absolute top="250" left="375" width="300" height="300"}
+![](logos/SuperBug.png){.absolute top="300" left="450" width="150" height="150"}
+
+
+
+## CLEANING {.smaller}
+
+::: {.incremental}
+
+- Select columns of interest: *Compound Name*, *Enzyme Name*, *Encoding Gene*, *KEGG Orthology*, *Organism*, *GenBankID*, *Strain ID/Microorganism*, *UniProt ID*, *Protein ID*, *Continent*, *Country*, *Isolation source*, *Habitat notes*
+- Deal with null values
+  - Delete columns with majority null values (except from *KEGG Orthology*)
+- Change variable names 
+- Standarization of naming convention of: *Encoding Gene*, *Continent*, *Country*
+
+
+:::
+
+
+
+## DATA EXPLORATION: ORGANISM DISTRIBUTION {.smaller}
+
+We will do our study only with **Bacteria** samples.
+
+![](../results/organisms_distribution_plot.png){.absolute top="200" left="200" width="800" height="500"}
+
+## DATA EXPLORATION: GENES VS COMPOUNDS {.smaller}
+
+![](../results/genes_vs_compounds_stacked_plot.png){.absolute top="275" left="200" width="700" height="400"}
+
+
+::: {.incremental}
+
+- Too many genes, is there anyting we can do?
+  - USE: KEGG Orthology
+:::
+
+
+
+## RESULTS: WorldMap
+
+## RESULTS: Orthology Analysis
+
+![](../results/compound_pathways_plot.png)
+
+## RESULTS: Sequence Analysis
+
+KLK?
+
+## CONCLUSIONS
+
+
+## THANK YOU! Microbial bioremediation of persistent organic pollutants (POP) {.center .smaller}
+<style>
+.center {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* This ensures full vertical height */
+}
+</style>
+G6: Javier López, Pablo Sánchez-Izquierdo, Víctor Fiérrez and Laura Casanovas
+![](logos/happyworld.png)
