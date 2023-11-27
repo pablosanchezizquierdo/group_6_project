@@ -4,12 +4,16 @@ format: html
 editor: visual
 ---
 
+# Sequence analysis
+
 ## Load augment dataset from step 4
 
 ```{r}
 tsv_file <- "../data/data_augmented.tsv"
 data_augmented <- read_tsv(tsv_file)
 ```
+
+## Group sequences by compound
 
 ```{r}
 ### Extract a vector of sequences
@@ -20,20 +24,15 @@ compound_lists <- data_augmented |>
   group_by(Compound_Name) |> 
   summarise(ProteinSequences = list(Sequence))
 
-# Print or use the list of sequences for each compound
-#print(compound_lists)
-
 ```
 
-```{r}
-#library("ggseqlogo")
+## Apply MSA on each compound
 
+```{r}
 # Perform MSA on each list of sequences
 aligned_compounds <- compound_lists |>
   filter(map_lgl(ProteinSequences, ~length(.x) < 200)) |> 
   mutate(MSA = map(ProteinSequences, ~msa(.x, type = "protein")))
-
-#print(aligned_compounds$AlignedSequences)
 
 ```
 
@@ -78,9 +77,7 @@ aligned_compounds <- aligned_compounds |>
   mutate(aligned_sequences = map(aligned_sequences, ~map(.x, ~paste(.x, collapse = ""))))
 ```
 
-## Clustering
-
-### Distance matrix
+## Distance matrix
 
 ```{r}
 aligned_compounds <- aligned_compounds |>
@@ -88,52 +85,98 @@ aligned_compounds <- aligned_compounds |>
   mutate(distance_matrix = map(distance_matrix, ~dist.alignment(.x, "identity")))
 ```
 
-### Clustering
-
-#### Phylogenetic trees
-
-```{r}
-aligned_compounds <- aligned_compounds |>
-  mutate(phylo_tree = map(distance_matrix, ~njs(.x)))
-```
-
-```{r}
-#map(aligned_compounds$phylo_tree, plot(.x, cex = 0.6))
-map(aligned_compounds$phylo_tree, function(tree) {
-  plot(tree, cex = 0.6)
-})
-```
-
-```{r}
-phylogenetic_tree <- njs(aligned_compounds$distance_matrix[2][[1]])
-plot(phylogenetic_tree, main="Phylogenetic Tree of Hemoglobin Alpha Sequences", cex=0.6)
-```
-
-Sequence logo
+## Phylogenetic trees
 
 ```{r}
 
+phylo_tree <- njs(aligned_compounds$distance_matrix[2][[1]])
+
+# Plot the tree
+plot(phylo_tree, main="Phylogenetic Tree of a compound example", cex=0.5)
+
+```
+
+## Clustering
+
+### Calculate clusters
+
+```{r}
+clusters_vector <- list(
+  c("5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","4","4","4","4","4","4","4","4","3","3","3","3","3","3","4","4","4","4","2","2","2","2","2","2","4","4","4","4","4","4","1","1","1","1","1","1","1","1","1","1","2","2","2","2","2","2","2","2","2","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5"),
+  c("6","6","6","6","6","6","6","6","6","6","6","7","7","7","7","7","7","7","7","7","7","7","7","7","8","8","8","8","8","8"),
+  c("9","10"),
+  c("11","11","11","11","11","11","11","11","11","11","11","12","12","12","12","12","12","12","12","12","12","12","12","12","13","13","13","13","13","13"),
+  c("14","14","14","14","14","14","14","15","15","15","15","16","16","16","16","16","16","16","17","17","17","17","17","17","18","18","18","18"),
+  c("19","19","19","19","19","19","19","19","19","19","19","19","19","19","19","20","20","20","20","20","20","20","20","20","20","20","20","20","20","20","21","21","21","21","21","21","21","21","21","21","21","21","21","21","21","22","22","22","22","22","22","22","22","22","22","22","22","22","22","22","22"),
+  c("23","23","23","23","23","23","23","23","23","23","23","24","24","24","24","24","24","24","24","24","24","24","24","24","25","25","25","25","25","25"),
+  c("26","26","27","28"),
+  c("72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","71","71","71","71","71","71","71","71","70","70","70","70","70","70","71","71","71","71","69","69","69","69","69","69","71","71","71","71","71","71","68","68","68","68","68","68","68","68","68","68","69","69","69","69","69","69","69","69","69","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72"),
+  c("35","35","35","35","35","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","37","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35"),
+  c("41","41","41","41","41","41","41","41","38","38","38","38","38","39","39","39","39","39","40","40","40","40","40","40"),
+  c("42","42","42","43","43","44","44","44","44","44","43","45","45","45","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46"),
+  c("73","73","73","74","74","75","75","75","75","75","74","76","76","76","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77"),
+  c("47","47","47","48","48","48","49","49","50","49","51","51","52","52","52","49","52","51"),
+  c("53","53","54","54","54","54","54","54","54","54","54","54","54","54","54","54","54","54","54","53","53","53","53","53","53","53","53","53","53","53","53","53","53","53","53","53","55","55","56","56","56","56","56","56","56","53","53","55","53","55","57","53","55","58","54","55","53"),
+  c("59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61"),
+  c("62","62","63"),
+  c("65","65","65","65","65","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","67","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65"))
+
+aligned_compounds$clusters <- clusters_vector
+
+vector_1 <- as.character(1:72)
+vector_2 <- c("Beta-1,2,3,4,5,6-Hexachlorocyclohexane_1","Beta-1,2,3,4,5,6-Hexachlorocyclohexane_2","Beta-1,2,3,4,5,6-Hexachlorocyclohexane_3","Beta-1,2,3,4,5,6-Hexachlorocyclohexane_4","Beta-1,2,3,4,5,6-Hexachlorocyclohexane_5","Decabromodiphenyl ether_1","Decabromodiphenyl_ether_2","Decabromodiphenyl_ether_3","Endosulfan_1","Endosulfan_2","Heptabromodiphenyl_ether_1","Heptabromodiphenyl_ether_2","Heptabromodiphenyl_ether_3","Hexabromobiphenyl_1","Hexabromobiphenyl_2","Hexabromobiphenyl_3","Hexabromobiphenyl_4","Hexabromobiphenyl_5","	
+Hexabromocyclododecane_1","	
+Hexabromocyclododecane_2","	
+Hexabromocyclododecane_3","Hexabromocyclododecane_4","Hexabromodiphenyl_ether_1","Hexabromodiphenyl_ether_2","Hexabromodiphenyl_ether_3","Hexachlorobenzene_(HCB)_1","Hexachlorobenzene_(HCB)_2","Hexachlorobenzene_(HCB)_3","Lindane_1","Lindane_2","Lindane_3","Lindane_4","Pentabromodiphenyl_ether_1","Pentabromodiphenyl_ether_2","Pentabromodiphenyl_ether_3","Pentabromodiphenyl_ether_4","Pentachlorbenzene_1","Pentachlorbenzene_2","Pentachlorbenzene_3","Pentachlorbenzene_4","Perfluorooctane_Sulfonate_(PFOS)_1","Perfluorooctane_Sulfonate_(PFOS)_2","Perfluorooctane_Sulfonate_(PFOS)_3","Perfluorooctane_Sulfonate_(PFOS)_4","Perfluorooctane_Sulfonate_(PFOS)_5","Perfluorooctanoic_Acid_(PFOA)_1","Perfluorooctanoic_Acid_(PFOA)_2","Perfluorooctanoic_Acid (PFOA)_3","Perfluorooctanoic_Acid (PFOA)_4","Perfluorooctanoic_Acid (PFOA)_5","	
+Polychlorinated_dibenzo-p-dioxins_(PCDD)_1","	
+Polychlorinated_dibenzo-p-dioxins_(PCDD)_2","	
+Polychlorinated_dibenzo-p-dioxins_(PCDD)_3","	
+Polychlorinated_dibenzo-p-dioxins_(PCDD)_4","	
+Polychlorinated_dibenzo-p-dioxins_(PCDD)_5","	
+Polychlorinated_dibenzo-p-dioxins_(PCDD)_6","Polychlorinated_dibenzofurans_(PCDF)_1","Polychlorinated_dibenzofurans_(PCDF)_2","Polychlorinated_dibenzofurans_(PCDF)_3","Polychlorinated_dibenzofurans_(PCDF)_4","Polychlorinated_dibenzofurans_(PCDF)_5","Polychlorinated_dibenzofurans_(PCDF)_6","Polychlorinated_naphthalenes_1","Polychlorinated_naphthalenes_2","Polychlorinated_naphthalenes_3","Short-Chain_Chlorinated_paraffins_(SCCPs)_1","Short-Chain_Chlorinated_paraffins_(SCCPs)_2","Tetrabromodiphenyl_ether_1","Tetrabromodiphenyl_ether_2","Tetrabromodiphenyl_ether_3","Tetrabromodiphenyl_ether_4","Tetrabromodiphenyl_ether_5")
+```
+
+```{r}
+#clusters_compounds <- data.frame()
+# Creating a new DataFrame with 52 rows
+clusters_compounds <- data.frame(clusters = rep(NA, 72))
+clusters_compounds$clusters <- vector_1
+clusters_compounds$Compound_Name <- vector_2
+```
+
+### Using clusters, unnest the individual protein sequences and join again
+
+```{r}
+aligned_compounds_clusters <- aligned_compounds |>
+  mutate(row = row_number()) |>
+  unnest(c(ProteinSequences, clusters))
+```
+
+```{r}
+# Split the dataset based on compound name
+aligned_compounds_clusters <- aligned_compounds_clusters |>
+  group_by(clusters) |> 
+  summarise(
+    ProteinSequences = list(ProteinSequences)
+  )
+
+aligned_compounds_clusters$clusters <- unlist(aligned_compounds_clusters$clusters)
 ```
 
 
 ```{r}
-# Apply Multidimensional Scaling
-mds_result <- cmdscale(aligned_compounds$distance_matrix[5][[1]], k=2) # k is the number of dimensions, usually 2 or 3
-
-# Plotting the result
-plot(mds_result, type="n", xlab="Dimension 1", ylab="Dimension 2", main="MDS Plot")
-text(mds_result, labels=rownames(mds_result), pos=4, cex=0.6)
-matrix_length <- nrow(aligned_compounds$distance_matrix[5][[1]])
-sample_labels <- seq(1, matrix_length)
-text(mds_result, labels=sample_labels, pos=4, cex=0.7)
+aligned_compounds_clusters <- left_join(aligned_compounds_clusters, clusters_compounds, by = "clusters")
 ```
+
+## Recalculate MSA for clusters
 
 ```{r}
-aligned_compounds <- aligned_compounds |>
-  mutate(phylogenetic_tree = map(distance_matrix, ~njs(.x)))
-#hemoTree <- nj(d)
-#plot(hemoTree, main="Phylogenetic Tree of Hemoglobin Alpha Sequences")
+# Perform MSA on each list of sequences
+#aligned_compounds_clusters <- aligned_compounds_clusters |> 
+  #mutate(MSA = map(ProteinSequences, ~msa(.x, type = "protein")))
 ```
+
+
 
 ## Core sequences
 
@@ -172,12 +215,10 @@ aligned_compounds <- aligned_compounds |>
   mutate(mer_position = map(conMat, ~mer_position_function(.x)))
 ```
 
-
 ```{r}
 aligned_compounds <- aligned_compounds |>
   mutate(extracted_chars = map(aligned_sequences, ~map(.x, ~str_sub(.x, 6, 6 + 8))))
 ```
-
 
 ```{r}
 aligned_compounds <- aligned_compounds |>
@@ -189,409 +230,5 @@ aligned_compounds <- aligned_compounds |>
 ```
 
 ```{r}
-aligned_compounds$seqlogo[5]
-```
-
-```{r}
-aligned_compounds <- aligned_compounds |>
-  mutate(extracted_chars = map2(aligned_sequences, mer_position, ~map(.x, ~str_sub(., .y, .y + 8))))
-
-aligned_compounds <- aligned_compounds |>
-  mutate(seqlogo = map(extracted_chars, ~ggseqlogo(.x, seq_type = "aa")))
-```
-
-```{r}
-aligned_compounds <- aligned_compounds |>
-  mutate(extracted_chars = map2(aligned_sequences[[1]], mer_position, ~map_chr(.x, ~substr(., .y, .y + 8))))
-```
-
-
-## Plotting MSA
-
-Plot sequence logos on the MSA using the 9mer got before (starting position stored in mer_position)
-
-```{r}
-alignment <- aligned_compounds$MSA[17][[1]]
-
-```
-
-```{r}
-
-plot_MSA <- function(MSA){
-  plot <- msaPrettyPrint(MSA, output="pdf", y=c(mer_position, mer_position + 8), showNames="none", showLogo="top",
-  logoColors="rasmol", shadingMode="similar",
-  showLegend=FALSE, askForOverwrite=FALSE)
-}
-
-aligned_compounds |>
-  map(MSA, ~plot_MSA(.x))
-```
-
-```{r}
-# Define the plot_MSA function
-plot_MSA <- function(MSA) {
-  plot <- msaPrettyPrint(
-    MSA, 
-    output = "pdf", 
-    y = c(9, 18),  # Assuming 'mer_position' is defined somewhere
-    showNames = "none", 
-    showLogo = "top",
-    logoColors = "rasmol", 
-    shadingMode = "similar",
-    showLegend = FALSE, 
-    askForOverwrite = FALSE
-  )
-  return(plot)  # Return the 'plot' object
-}
-
-# Apply the plot_MSA function to each element in the "MSA" column using map
-result_list <- aligned_compounds %>%
-  mutate(plot_result = map(MSA, plot_MSA))
-```
-
-```{r}
-hamming_distance <- function(seq1, seq2) {
-    # Ensure the sequences are character strings
-    seq1 <- as.character(seq1)
-    seq2 <- as.character(seq2)
-    # Check if lengths are equal
-    if (nchar(seq1) != nchar(seq2)) {
-        stop("Sequences must be of the same length")
-    }
-
-    # Convert strings to vectors of characters
-    chars_seq1 <- strsplit(seq1, "")[[1]]
-    chars_seq2 <- strsplit(seq2, "")[[1]]
-
-    # Calculate Hamming distance
-    return(sum(chars_seq1 != chars_seq2))
-}
-calculate_distance_matrix <- function(sequences_list) {
-    n <- length(sequences_list)
-    distance_matrix <- matrix(nrow = n, ncol = n)
-    
-    for (i in 1:n) {
-        for (j in 1:n) {
-            distance_matrix[i, j] <- hamming_distance(sequences_list[[i]], sequences_list[[j]])
-        }
-    }
-    
-    return(distance_matrix)
-}
-```
-
-```{r}
-aligned_compounds <- aligned_compounds |>
-  mutate(distance_matrix_2 = map(aligned_sequences, ~calculate_distance_matrix(.x)))
-```
-
-```{r}
-print()
-```
-
-```{r}
-# Function to compute the complete linkage distance between two clusters
-complete_linkage_distance <- function(cluster1, cluster2, dist_matrix) {
-  max(sapply(cluster1, function(i) {
-    sapply(cluster2, function(j) {
-      dist_matrix[i, j]
-    })
-  }))
-}
-
-# Hierarchical clustering function
-hierarchical_clustering <- function(dist_matrix) {
-  clusters <- list(seq_len(nrow(dist_matrix)))
-  while (length(clusters) > 1) {
-    # Find the pair of clusters with the smallest complete linkage distance
-    min_dist <- Inf
-    min_pair <- c(0, 0)
-    for (i in 1:(length(clusters) - 1)) {
-      for (j in (i + 1):length(clusters)) {
-        dist <- complete_linkage_distance(clusters[[i]], clusters[[j]], dist_matrix)
-        if (dist < min_dist) {
-          min_dist <- dist
-          min_pair <- c(i, j)
-        }
-      }
-    }
-    
-    # Merge the closest pair of clusters
-    new_cluster <- c(clusters[[min_pair[1]]], clusters[[min_pair[2]]])
-    clusters <- clusters[-c(min_pair[1], min_pair[2])]
-    clusters <- c(clusters, list(new_cluster))
-  }
-  
-  return(clusters[[1]])
-}
-```
-
-```{r}
-distance_matrix <- aligned_compounds$distance_matrix_2[2]
-distance_matrix_2 <- distance_matrix[[1]]
-class(distance_matrix_2)
-#aligned_compounds$distance_matrix[1]
-is.matrix(distance_matrix_2)
-#clusters <- hierarchical_clustering(distance_matrix_2)
-#print(clusters)
-```
-
-```{r}
-# Apply Multidimensional Scaling
-mds_result <- cmdscale(distance_matrix_2, k=2) # k is the number of dimensions, usually 2 or 3
-
-# Plotting the result
-plot(mds_result, type="n", xlab="Dimension 1", ylab="Dimension 2", main="MDS Plot")
-text(mds_result, labels=rownames(mds_result), pos=4, cex=0.6)
-matrix_length <- nrow(distance_matrix_2)
-sample_labels <- seq(1, matrix_length)
-text(mds_result, labels=sample_labels, pos=4, cex=0.7)
-```
-
-```{r}
-# Define a custom function to process each element
-process_sequence <- function(alignment_row) {
-    # Extract the first element of the list in the row
-    #alignment_2 <- alignment_row[[1]]
-    
-    # Convert the alignment
-    alignment_3 <- msaConvert(alignment_2, type="bios2mds::align")
-    
-    # Concatenate the sequences
-    alignment_4 <- lapply(alignment_row, function(x) paste(x, collapse = ""))
-    
-    return(alignment_4)
-}
-
-# Apply the function to each row of the AlignedSequences column
-processed_sequences <- lapply(aligned_compounds$AlignedSequences, process_sequence)
-
-# 'processed_sequences' now contains the processed data for each row
-```
-
-```{r}
-hemoAln3_1 <- hemoAln3[1]
-hemoAln3_1 <- hemoAln3_1[[1]]
-print(hemoAln3_1[1])
-```
-
-```{r}
-ProteinSequences <- aligned_compounds$ProteinSequences[1]
-#ProteinSequences <- ProteinSequences[[1]]
-print(ProteinSequences)
-```
-
-```{r}
-compound_lists_2 <- data_augmented |>
-  filter(!is.na(Sequence)) |> 
-  group_by(Compound_Name) |>
-  summarise(ProteinSequences = list(Sequence))
-```
-
-```{r}
-specific_compound <- compound_lists_2 |> 
-  filter(Compound_Name == "Endosulfan") |> 
-  pull(ProteinSequences)
-
-# This will print the sequences for the chosen compound
-print(specific_compound)
-```
-
-```{r}
-# Concatenate all elements into a single string
-concatenated_string <- paste(hemoAln3_1, collapse = "")
-```
-
-```{r}
-str(hemoAln3)
-```
-
-```{r}
-print(alignment)
-```
-
-## Phylogenetic tree
-
-```{r}
-library(phylocom)
-```
-
-```{r}
-consensus_seq <- consensusSequence(alignment)
-```
-
-```{r}
-library(Biostrings)
-```
-
-```{r}
-print(alignment)
-```
-
-```{r}
-# Assuming 'alignment' is your MSA object
-cons_matrix <- consensusMatrix(alignment)
-cons_seq <- consensusString(cons_matrix)
-print(cons_seq)
-```
-
-```{r}
-alignedSequences <- msaConvert(alignment, type="AAMultipleAlignment")
-```
-
-```{r}
-library("ape")
-library("seqinr")
-```
-
-```{r}
-# The msa object stores sequences in a list-like structure
-alignedSequences <- alignment@seqs
-
-# Convert to a vector of strings
-sequenceVector <- sapply(alignedSequences, as.character)
-```
-
-```{r}
-hemoAln3 <- msaConvert(alignment, type="bios2mds::align")
-str(hemoAln3)
-```
-
-```{r}
-hemoAln4 <- as(alignment, "BStringSet")
-hemoAln4
-```
-
-```{r}
-alignment_object_first_row <- aligned_compounds$AlignedSequences[18]
-alignment <- alignment_object_first_row[[1]]
-```
-
-```{r}
-msaPrettyPrint(alignment, output="tex", y=c(164, 213),
-subset=c(1:6), showNames="none", showLogo="none",
-consensusColor="ColdHot", showLegend=FALSE,
-askForOverwrite=FALSE)
-```
-
-```{r}
-# Redirecting the output of msaPrettyPrint to a temporary file
-tempFile <- tempfile()
-sink(tempFile)
-msaPrettyPrint(alignment, output="fasta")
-sink()
-
-# Reading back the content
-alignedSequences <- readLines(tempFile)
-
-# Cleaning up the temporary file
-unlink(tempFile)
-
-# Process the content to extract sequences
-sequences <- alignedSequences[grep(">", alignedSequences, invert = TRUE)]
-sequenceVector <- paste(sequences, collapse = "")
-```
-
-```{r}
-library(texshade)
-```
-
-```{r}
-library(seqinr)
-d <- dist.alignment(aligned_compunds$AlignedSequences, "identity")
-#as.matrix(d)[2:5, "HBA1_Homo_sapiens", drop=FALSE]
-```
-
-```{r}
-
-# Function to extract 9-mers from the aligned sequence
-extract_9mers <- function(alignment, positions) {
-  s2 <- unname(as.character(alignment))
-  lapply(positions, function(pos) toString(s2[(pos - 4):(pos + 4)]))
-}
-
-# Perform MSA on each list of sequences
-aligned_compounds <- compound_lists %>%
-  filter(map_lgl(ProteinSequences, ~length(.x) == 168)) %>%
-  mutate(
-    AlignedSequences = map(ProteinSequences, ~msa(.x, type = "protein")),
-    Conserved9mers = map(AlignedSequences, ~{
-      consensus <- consensusMatrix(.x)
-      most_conserved_positions <- which(consensus >= 0.5)  # You can adjust the threshold as needed
-      # Extract 9-mers around the most conserved positions
-      extract_9mers(.x, most_conserved_positions)
-    })
-  )
-
-# Print or use the aligned sequences and most conserved 9-mers for each compound
-print(aligned_compounds)
-```
-
-```{r}
-# Print the conserved 9-mers for each compound
-Conserved9mers <- aligned_compounds %>%
-  select(`Compound Name`, Conserved9mers) %>%
-  unnest(Conserved9mers)
-
-```
-
-```{r}
-
-# Function to extract the most conserved 9-mer from the aligned sequence
-extract_most_conserved_9mer <- function(alignment, positions) {
-  s2 <- unname(as.character(alignment))
-  if (length(positions) > 0) {
-    most_conserved_position <- positions[which.max(consensusMatrix(alignment)[positions])]
-    return(toString(s2[(most_conserved_position - 4):(most_conserved_position + 4)]))
-  } else {
-    return(NA)
-  }
-}
-
-# Perform MSA on each list of sequences
-aligned_compounds <- compound_lists %>%
-  filter(map_lgl(ProteinSequences, ~length(.x) < 168)) %>%
-  mutate(
-    AlignedSequences = map(ProteinSequences, ~msa(.x, type = "protein")),
-    Conserved9mers = map(AlignedSequences, ~{
-      consensus <- consensusMatrix(.x)
-      most_conserved_positions <- which(consensus >= 0.5)  # You can adjust the threshold as needed
-      # Extract the most conserved 9-mer around the most conserved position
-      extract_most_conserved_9mer(.x, most_conserved_positions)
-    })
-  ) %>%
-  select(`Compound Name`, ProteinSequences, Conserved9mers) %>%
-  unnest(ProteinSequences, Conserved9mers)
-
-# Print the conserved 9-mers for each sequence and compound
-print(aligned_compounds)
-
-
-```
-
-```{r}
-
-library(Biostrings)
-library(dplyr)
-
-# Assuming your dataset is named 'aligned_compounds' and the second column is named 'ProteinSequences'
-aligned_compounds <- aligned_compounds %>%
-  mutate(conserved_aa = map_chr(AlignedSequences, ~{
-    # Create a AAStringSet object from the sequences
-    aa_strings <- AAStringSet(.x)
-    
-    # Create a consensus matrix from the AAStringSet object
-    consensus_matrix <- consensusMatrix(aa_strings)
-    
-    # Extract the 9 most conserved amino acids from the consensus matrix
-    conserved_aa <- names(sort(consensus_matrix, decreasing = TRUE)[1:9])
-    
-    # Return the 9 most conserved amino acids as a string
-    return(paste(conserved_aa, collapse = ","))
-  }))
-
-# Print the updated dataset
-print(aligned_compounds$conserved_aa)
-
-
+aligned_compounds$seqlogo[18]
 ```
