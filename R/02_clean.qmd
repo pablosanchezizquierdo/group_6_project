@@ -20,13 +20,7 @@ all_sheets <- read_delim("../data/all_sheets.tsv", delim = "\t", show_col_types 
 We can dispense with many variables in this data set containing information that we will not be working with like the links and the scientific article information for each observation.
 
 ```{r}
-# Define the columns you want to keep
-<<<<<<< HEAD
-columns_to_keep <- c("Compound Name", "Enzyme Name", "Encoding Gene", "KEGG Orthology", "Organism", "GenBankID", "Strain ID/Microorganism", "UniProt ID", "Protein ID", "Continent where study sampling was done (Collections)", "Country", "Isolation source", "Habitat notes")  
 
-# Subset the 'all_sheets' data frame to keep only the specified columns
-selected_columns <- all_sheets |> select(all_of(columns_to_keep))
-=======
 columns_to_keep <- c("Compound Name", 
                      "Enzyme Name", 
                      "Encoding Gene", 
@@ -45,7 +39,7 @@ data_reduced <- data |>
   select(all_of(columns_to_keep))
 
 
->>>>>>> 9c60d1c8b2f3dc2b30b3cbf4e4e9ff6d673c6c3a
+
 ```
 
 ## Visualize how many NA values we have
@@ -91,11 +85,11 @@ ggplot(missing_data,
 ```
 
 We can see how the variables with data related to location and the "Protein ID" and the "UniProt ID" variable are the ones with the most number of NA values. Knowing this, we are going to eliminate the columns with the most amount of NA except for "KEGG Orthology" since we are going to work with that in the future.
+
 ```{r}
 data_reduced <- data_reduced |> 
   select(-c(`Habitat notes`, `Isolation source`, `UniProt ID`))
 ```
-
 
 ## Fixing naming conventions
 
@@ -440,7 +434,9 @@ unique_countries2
 ```
 
 ### Compound Name:
+
 Again, here we have compound names that should be the same but have different annotations.
+
 ```{r}
 # First, let's have a look at what we have:
 unique_values_compound <- data_reduced |> 
@@ -448,7 +444,9 @@ unique_values_compound <- data_reduced |>
   distinct() 
 unique_values_compound
 ```
+
 ## Rename variables
+
 Now, we delete spaces between words in variables name to avoid analysis problems
 
 ```{r}
