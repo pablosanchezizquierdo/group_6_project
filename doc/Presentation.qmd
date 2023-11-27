@@ -110,6 +110,8 @@ We will do our study only with **Bacteria** samples.
 
 ## RESULTS: WorldMap
 
+![](../results/heat_map_of_bacteria_at_each_country.png)
+
 ## RESULTS: Orthology Analysis
 
 ![](../results/compound_pathways_plot.png)
