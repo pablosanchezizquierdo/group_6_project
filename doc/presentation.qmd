@@ -3,7 +3,8 @@ title: "Microbial bioremediation of persistent organic pollutants (POP)"
 subtitle: "Group 6: Javier López, Pablo Sánchez-Izquierdo, Víctor Fiérrez and Laura Casanovas"
 institute: "Technical University of Denmark (DTU)"
 format:
-  revealjs: 
+  revealjs:
+    embed-resources: true 
     slide-number: true
     theme: sky
     transition: slide 
