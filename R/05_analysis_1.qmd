@@ -12,7 +12,9 @@ editor: visual
 
 ```{r}
 library("tidyverse")
+library("Biostrings")
 library("msa")
+library("ggseqlogo")
 library("ape")
 library("seqinr")
 library("ggseqlogo")
@@ -42,7 +44,7 @@ compound_lists <- data_augmented |>
 ```{r}
 # Perform MSA on each list of sequences
 aligned_compounds <- compound_lists |>
-  filter(map_lgl(ProteinSequences, ~length(.x) < 50)) |> 
+  filter(map_lgl(ProteinSequences, ~length(.x) < 200)) |> 
   mutate(MSA = map(ProteinSequences, ~msa(.x, type = "protein")))
 ```
 
@@ -98,7 +100,6 @@ plot(phylo_tree, main="Phylogenetic Tree of a compound example", cex=0.5)
 
 ```
 
-
 ## Core sequences
 
 In order to make sequence logos on the core sequences, we need to calculate the best 9mer.
@@ -117,4 +118,3 @@ aligned_compounds <- aligned_compounds |>
 aligned_compounds <- aligned_compounds |>
   mutate(seqlogo = map(core, ~ggseqlogo(.x, seq_type = "aa")))
 ```
-

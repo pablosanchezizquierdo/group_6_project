@@ -9,7 +9,7 @@
 <link href="Presentation_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.2.475">
 
-  <title>Group 6: Microbial bioremediation of persistent organic pollutants (POP)</title>
+  <title>Microbial bioremediation of persistent organic pollutants (POP)</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -323,7 +323,8 @@
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">Group 6: Microbial bioremediation of persistent organic pollutants (POP)</h1>
+  <h1 class="title">Microbial bioremediation of persistent organic pollutants (POP)</h1>
+  <p class="subtitle">Group 6: Javier López, Pablo Sánchez-Izquierdo, Víctor Fiérrez and Laura Casanovas</p>
 
 <div class="quarto-title-authors">
 </div>
@@ -332,52 +333,105 @@
 <section id="what-is-bioremediation" class="slide level2">
 <h2>What is bioremediation?</h2>
 <div class="fragment" data-fragment-index="1">
-<p><img data-src="climatechange.png" class="absolute" style="top: 150px; left: 0px; width: 500px; height: 500px; " data-responsive="true"></p>
+<p><img data-src="logos/climatechange.png" class="absolute" style="top: 150px; left: 0px; width: 500px; height: 500px; " data-responsive="true"></p>
 </div>
 <div class="fragment" data-fragment-index="2">
-<p><img data-src="bioremediation.png" class="absolute" style="top: 150px; left: 500px; width: 600px; height: 500px; " data-responsive="true"></p>
+<p><img data-src="logos/bioremediation.png" class="absolute" style="top: 150px; left: 500px; width: 600px; height: 500px; " data-responsive="true"></p>
 </div>
 <div class="fragment" data-fragment-index="3">
-<p><img data-src="cross.png" class="absolute" style="top: 220px; left: 820px; width: 300px; height: 300px; "></p>
+<p><img data-src="logos/cross.png" class="absolute" style="top: 220px; left: 820px; width: 300px; height: 300px; "></p>
 </div>
 </section>
-<section id="our-dataset-goal" class="slide level2">
-<h2>OUR DATASET + GOAL</h2>
+<section id="our-data" class="slide level2 smaller">
+<h2>OUR DATA</h2>
+<div class="fragment" data-fragment-index="1">
+<p>POP (persistent organic pollutants): clean-up technique for reclaiming POP-contaminated environments. It is attractive, eco-friendly and cost-efficient.</p>
+</div>
+<div class="fragment" data-fragment-index="2">
+<p>Manually curated integrative database dedicated to microbial bioremediation of persistent organic pollutants (POP) research.</p>
+</div>
+<div class="fragment" data-fragment-index="3">
 <ul>
-<li>size, attributes, etc</li>
-<li>goal</li>
+<li><strong>Genes</strong> <!--# : POP metabolizing microbial strains identified to possess the functional genes associated with the POP biodegradation processes collected from the scientific literature and public databases. --></li>
+<li>Strains</li>
+<li><strong>Sequences</strong> (Complementary) <!--#: Nucleotide and protein sequences of the POP degrading microbial strains collected in this database. --></li>
+<li>Compound</li>
+<li>Calculated properties 01</li>
 </ul>
+</div>
+<div class="fragment" data-fragment-index="4">
+<p>We added the <strong>corresponding sequence</strong> to each sample.</p>
+</div>
+<div class="fragment" data-fragment-index="5">
+<p><strong>Final dataset size</strong>: 5733 observations of 12 variables</p>
+</div>
 </section>
-<section id="cleaning" class="slide level2">
+<section id="goal" class="slide level2 center">
+<h2>GOAL</h2>
+<p><strong>Elucidate patterns within organisms with bioremediation potential. To promote more effective and sustainable solutions.</strong></p>
+<p><img data-src="logos/healtyplanet.png" class="absolute" style="top: 250px; left: 375px; width: 300px; height: 300px; "> <img data-src="logos/SuperBug.png" class="absolute" style="top: 300px; left: 450px; width: 150px; height: 150px; "></p>
+</section>
+<section id="cleaning" class="slide level2 smaller">
 <h2>CLEANING</h2>
+<div>
 <ul>
-<li>Que vam canviar i perq? quines cols ens qedem?</li>
-</ul>
-</section>
-<section id="data-exploration-1" class="slide level2">
-<h2>DATA EXPLORATION 1</h2>
+<li class="fragment">Select columns of interest: <em>Compound Name</em>, <em>Enzyme Name</em>, <em>Encoding Gene</em>, <em>KEGG Orthology</em>, <em>Organism</em>, <em>GenBankID</em>, <em>Strain ID/Microorganism</em>, <em>UniProt ID</em>, <em>Protein ID</em>, <em>Continent</em>, <em>Country</em>, <em>Isolation source</em>, <em>Habitat notes</em></li>
+<li class="fragment">Deal with null values
 <ul>
-<li>…</li>
+<li class="fragment">Delete columns with majority null values (except from <em>KEGG Orthology</em>)</li>
+</ul></li>
+<li class="fragment">Change variable names</li>
+<li class="fragment">Standarization of naming convention of: <em>Encoding Gene</em>, <em>Continent</em>, <em>Country</em></li>
 </ul>
+</div>
 </section>
-<section id="data-exploration-2" class="slide level2">
-<h2>DATA EXPLORATION 2</h2>
+<section id="data-exploration-organism-distribution" class="slide level2 smaller">
+<h2>DATA EXPLORATION: ORGANISM DISTRIBUTION</h2>
+<p>We will do our study only with <strong>Bacteria</strong> samples.</p>
+<p><img data-src="../results/organisms_distribution_plot.png" class="absolute" style="top: 200px; left: 200px; width: 800px; height: 500px; "></p>
+</section>
+<section id="data-exploration-genes-vs-compounds" class="slide level2 smaller">
+<h2>DATA EXPLORATION: GENES VS COMPOUNDS</h2>
+<p><img data-src="../results/genes_vs_compounds_stacked_plot.png" class="absolute" style="top: 275px; left: 200px; width: 700px; height: 400px; "></p>
+<div>
 <ul>
-<li>…</li>
-</ul>
-</section>
-<section id="new-variables" class="slide level2">
-<h2>NEW VARIABLES</h2>
+<li class="fragment">Too many genes, is there anyting we can do?
 <ul>
-<li>Explicar el q vam fer en el augment</li>
+<li class="fragment">USE: KEGG Orthology</li>
+</ul></li>
 </ul>
+</div>
 </section>
-<section id="results" class="slide level2">
-<h2>RESULTS</h2>
-<p><img data-src="../results/bacteria_vs_compounds_distribution.png" class="absolute" style="top: 200px; left: 0px; width: 350px; height: 300px; "></p>
-<p><img src="DTU_logo.png" class="slide-logo"></p>
+<section id="results-worldmap" class="slide level2">
+<h2>RESULTS: WorldMap</h2>
+</section>
+<section id="results-orthology-analysis" class="slide level2">
+<h2>RESULTS: Orthology Analysis</h2>
+
+<img data-src="../results/compound_pathways_plot.png" class="r-stretch"></section>
+<section id="results-sequence-analysis" class="slide level2">
+<h2>RESULTS: Sequence Analysis</h2>
+<p>KLK?</p>
+</section>
+<section id="conclusions" class="slide level2">
+<h2>CONCLUSIONS</h2>
+</section>
+<section id="thank-you-microbial-bioremediation-of-persistent-organic-pollutants-pop" class="slide level2 center smaller">
+<h2>THANK YOU! Microbial bioremediation of persistent organic pollutants (POP)</h2>
+<style>
+.center {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* This ensures full vertical height */
+}
+</style>
+<p>G6: Javier López, Pablo Sánchez-Izquierdo, Víctor Fiérrez and Laura Casanovas <img data-src="logos/happyworld.png"></p>
+<p><img src="logos/DTU_logo.png" class="slide-logo"></p>
 <div class="footer footer-default">
-<p>R for Bio Data Science 2023</p>
+<p>R for Bio Data Science 28-11-2023</p>
 </div>
 </section>
     </div>

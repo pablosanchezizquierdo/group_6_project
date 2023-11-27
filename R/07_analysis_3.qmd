@@ -1,0 +1,79 @@
+---
+title: "07_analysis3"
+format: 
+  html:
+    embed-resources: true
+editor: visual
+---
+
+## Load libraries:
+
+```{r}
+#| message: false
+library("tidyverse")
+library("maps")
+```
+
+## Import Clean Data
+
+```{r}
+# Read TSV file into a data frame
+data_augmented <- read_delim("../data/data_augmented.tsv", 
+                         delim = "\t", 
+                         show_col_types = FALSE)
+```
+
+## Heat map of Organisms at each Country
+
+```{r}
+world <- map_data("world")
+
+# First, we select the "Country" variable from data_clean and count how many times each country appears:
+world_map_plot <- data_augmented |> 
+  filter(Organism == "Bacteria") |> 
+  select(Country) |> 
+  group_by(Country) |> 
+  summarise(log10Count = log(n(), 
+                             10)) |>     # We need to do log(,10) since Canada has way many 
+  dplyr::rename("region" = "Country")    # We need to rename the variable for the latter join
+
+# Now we join the world data set (comes with the R package already) with our dataset:
+worldSubset <- inner_join(world, 
+                          world_map_plot, 
+                          by = "region")
+
+# There is a set of things we want to not show in the plot:
+plain <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_rect(fill = "white"),
+  plot.title = element_text(hjust = 0.5)
+)
+
+# Now we plot:
+plot7 <- ggplot(data = worldSubset, 
+                mapping = aes(x = long, 
+                              y = lat, 
+                              group = group)) + 
+  geom_polygon(aes(fill = log10Count)) +  
+  coord_fixed(1.3) +
+  scale_fill_distiller(palette ="Reds", 
+                       direction = 1) + 
+  plain +
+  theme(legend.position = "bottom") +
+  ggtitle("Sample distribution around the world (Bacteria)")
+
+plot7
+
+ggsave("../results/heat_map_of_bacteria_at_each_country.png", 
+       plot7, 
+       width = 10, 
+       height = 6, 
+       dpi = 300)
+```
+
+From this visualization we can extract a couple of key points. First, looks like Canada, China and Germany are countries of great interest for researchers looking for bioremediation species. Whether this is because many bioremediation investigating groups are based in those countries, or because these countries have shown potential locations where this type of species are found is yet to be determined. On the other hand, we can also see many countries without much exploration. This leaves room for new investigators to find new strains, organisms and genes to target new compounds or already known ones. This map does not include the oceans samples, which might actually be the most promising areas of exploration.
