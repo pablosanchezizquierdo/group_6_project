@@ -77,5 +77,6 @@ pathway_barplot <- ggplot(pathway_counts, aes(x = Pathway, y = n, fill = n)) +
   scale_y_continuous(limits = c(0, 15)) # Set y-axis limits
 
 # Save the barplot to a file
-ggsave("../results/most_used_pathways.png", plot = pathway_barplot, width = 10, height = 8, dpi = 300)
+#ggsave("../results/most_used_pathways.png", plot = pathway_barplot, width = 10, height = 8, dpi = 300)
+pathway_barplot
 ```
