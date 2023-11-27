@@ -23,30 +23,30 @@ library("quarto")
 ```
 
 ```{r}
-quarto::quarto_render(
-  "00_all.qmd", 
-  output_format = "html")
-file.rename("00_all.html", "../results/00_all.html")
 # Run 01_load file and save it as .html in the results folder
 quarto::quarto_render(
   "01_load.qmd", 
   output_format = "html")
 file.rename("01_load.html", "../results/01_load.html")
+
 # Run 02_clean file and save it as .html in the results folder
 quarto::quarto_render(
   "02_clean.qmd", 
   output_format = "html")
 file.rename("02_clean.html", "../results/02_clean.html")
+
 # Run 03_describe file and save it as .html in the results folder
 quarto::quarto_render(
   "03_describe.qmd", 
   output_format = "html")
 file.rename("03_describe.html", "../results/03_describe.html")
+
 # Run 04_augment file and save it as .html in the results folder
 quarto::quarto_render(
   "04_augment.qmd", 
   output_format = "html")
 file.rename("04_augment.html", "../results/04_augment.html")
+
 # Run 05_analysis_1 file and save it as .html in the results folder
 quarto::quarto_render(
   "05_analysis_1.qmd", 
@@ -58,4 +58,10 @@ quarto::quarto_render(
   "06_analysis_2.qmd", 
   output_format = "html")
 file.rename("06_analysis_2.html", "../results/06_analysis_2.html")
+
+# Run 07_analysis_3 file and save it as .html in the results folder
+quarto::quarto_render(
+  "07_analysis_3.qmd", 
+  output_format = "html")
+file.rename("07_analysis_3.html", "../results/07_analysis_3.html")
 ```

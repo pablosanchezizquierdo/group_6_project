@@ -29,7 +29,7 @@ data_augmented <- read_delim("../data/data_augmented.tsv",
 world <- map_data("world")
 
 # First, we select the "Country" variable from data_clean and count how many times each country appears:
-world_map_plot <- data_clean |> 
+world_map_plot <- data_augmented |> 
   filter(Organism == "Bacteria") |> 
   select(Country) |> 
   group_by(Country) |> 

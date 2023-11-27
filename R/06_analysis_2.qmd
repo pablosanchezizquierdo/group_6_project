@@ -5,21 +5,26 @@ format:
     embed-resources: true
 editor: visual
 ---
+## Loading libraries
+
+```{r}
+#| message: false
+library("tidyverse")
+```
+
 
 ## Loading dataset
 
 ```{r}
-library("tidyverse")
-
 tsv_file <- "../data/data_augmented.tsv"
 data_augmented <- read_tsv(tsv_file, show_col_types = FALSE)
 ```
 
-## Ploting Pathways
+## Plotting Pathways
 
 ```{r}
 # Enhanced stacked bar chart with ggplot2
-plotx <- ggplot(data_augmented |> 
+plot_kegg <- ggplot(data_augmented |> 
              filter(!is.na(Compound_Name) & !is.na(Pathway)) |> 
              dplyr::count(Compound_Name, Pathway) |> 
              group_by(Compound_Name) |> 
@@ -47,8 +52,12 @@ plotx <- ggplot(data_augmented |>
 
 
 # Save the plot as a PNG file in the 'results' folder
-ggsave("../results/compound_pathways_plot.png", plotx, width = 12, height = 8, units = "in")
+ggsave("../results/compound_pathways_plot.png", plot_kegg, width = 12, height = 8, units = "in")
 ```
+
+From this plot we can observe which are the most common used pathways to biodegrade each compound, we can observe that there are some pathways that are commonly used for all the compounds, in the next graph its seen more clearly.
+
+## Plotting which are the most common patwhays
 
 ```{r}
 # Remove duplicates based on Compound_Name and Pathway, then count the occurrences of each pathway
@@ -80,7 +89,8 @@ pathway_barplot <- ggplot(pathway_counts, aes(x = Pathway, y = n, fill = n)) +
   guides(fill = guide_colourbar(title = "Count")) + # Add a colorbar guide
   scale_y_continuous(limits = c(0, 15)) # Set y-axis limits
 
-# Save the barplot to a file
-#ggsave("../results/most_used_pathways.png", plot = pathway_barplot, width = 10, height = 8, dpi = 300)
-pathway_barplot
+ggsave("../results/most_used_pathways.png", pathway_barplot, width = 12, height = 8, units = "in")
 ```
+
+In this graphic we can see that the most used pathways are the chlorocyclohexane and chlorobenzene degradation and the benzoate degradation. In the future, this information can be used to find new organisms that are able to biodegrade this compounds, we only need to search more organisms that are involved in this pathways. Also, it means that all the compounds that we want to biodegrade are very rich in this compounds.
+
