@@ -1,8 +1,15 @@
 ---
 title: "02_clean"
-format: html
+format:
+  html:
+    embed-resources: true
 editor: visual
 ---
+## Load libraries
+```{r}
+#| message: false
+library("tidyverse")
+```
 
 ## Get data
 

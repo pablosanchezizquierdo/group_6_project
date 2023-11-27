@@ -1,25 +1,17 @@
 ---
 title: "00_all"
-format: html
+format:
+  html:
+    embed-resources: true
 editor: visual
 ---
+
 
 # Packages
 
 ```{r}
 #| message: false
 library("tidyverse")
-#library("dplyr")
-#library("stringr")
-#library("tidyr")
-library("readxl")
-#library("purrr")
-library("Biostrings")
-library("msa")
-library("KEGGREST")
-library("ape")
-library("seqinr")
-library("ggseqlogo")
 library("quarto")
 ```
 
@@ -31,22 +23,43 @@ library("quarto")
 #dir.create("../doc")
 ```
 
-# Run pipeline
-
 ```{r}
-# Quarto file names of our pipeline
-input_files <- c("01_load.qmd", "02_clean.qmd", "03_describe.qmd", "04_augment.qmd", "05_analysis_1.qmd", "06_analysis_2.qmd")
-# HTML file names where we want to store our final results
-output_files <- c("01_load.html", "02_clean.html", "03_describe.html", "04_augment.html", "05_analysis_1.html", "06_analysis_2.html")
+quarto::quarto_render(
+  "00_all.qmd", 
+  output_format = "html")
+file.rename("00_all.html", "../results/00_all.html"
+# Run 01_load file and save it as .html in the results folder
+quarto::quarto_render(
+  "01_load.qmd", 
+  output_format = "html")
+file.rename("01_load.html", "../results/01_load.html")
+# Run 02_clean file and save it as .html in the results folder
+quarto::quarto_render(
+  "02_clean.qmd", 
+  output_format = "html")
+file.rename("02_clean.html", "../results/02_clean.html")
+# Run 03_describe file and save it as .html in the results folder
+quarto::quarto_render(
+  "03_describe.qmd", 
+  output_format = "html")
+file.rename("03_describe.html", "../results/03_describe.html")
+# Run 04_augment file and save it as .html in the results folder
+quarto::quarto_render(
+  "04_augment.qmd", 
+  output_format = "html")
+file.rename("04_augment.html", "../results/04_augment.html")
+# Run 05_analysis_1 file and save it as .html in the results folder
+quarto::quarto_render(
+  "05_analysis_1.qmd", 
+  output_format = "html", 
+  output_file = "../results/05_analysis_1.html")
+file.rename("05_analysis_1.html", "../results/05_analysis_1.html")
 
-# Loop through the files, run them and store them in the results folder in .html format
-map(input_files, output_files, function(input_file, output_file) {
-  quarto::quarto_render(
-    input_file, 
-    output_format = "html", 
-    output_file = paste0("../results/", output_file)
-  )
-})
+# Run 06_analysis_2 file and save it as .html in the results folder
+quarto::quarto_render(
+  "06_analysis_2.qmd", 
+  output_format = "html")
+file.rename("06_analysis_2.html", "../results/06_analysis_2.html")
 ```
 
 # Saving HTML

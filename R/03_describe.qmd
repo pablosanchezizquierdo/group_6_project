@@ -1,12 +1,28 @@
 ---
 title: "03_describe.qmd"
-format: html
+format:
+  html:
+    embed-resources: true
 editor: visual
 ---
 
 ## Import Clean Data
 
 ```{r}
+#| message: false
+library("tidyverse")
+#library("dplyr")
+#library("stringr")
+#library("tidyr")
+library("readxl")
+#library("purrr")
+library("Biostrings")
+library("msa")
+library("KEGGREST")
+library("ape")
+library("seqinr")
+library("ggseqlogo")
+library("quarto")
 # Read TSV file into a data frame
 data_clean <- read_delim("../data/data_clean.tsv", delim = "\t", show_col_types = FALSE)
 
@@ -239,7 +255,7 @@ ggsave("../results/countries_vs_organisms_stacked_plot.png", plot5, width = 10, 
 
 Creation of a new data set with only information containing bacteria since it is more than 99% of the organisms:
 
-```{r}
+
 only_bacteria_data <- as.data.frame(filter(data_clean, Organism == "Bacteria"))
 
 only_bacteria_data$correct_continent <- rep(NA, length = nrow(only_bacteria_data))
@@ -252,11 +268,10 @@ only_bacteria_data$correct_continent[which(grepl("Australia|Kiribati", only_bact
 only_bacteria_data$correct_continent[which(grepl("Japan|India|China|Russia|South Korea|Turkey|Iran|Israel|Taiwan|Saudi Arabia|Kuwait|Singapore|Vietnam|Pakistan|Indonesia|Zhongshan Station|Thailand|Myanmar", only_bacteria_data$Country))] <- "Asia"
 only_bacteria_data$correct_continent[which(grepl("Antartica|South Shetland Islands", only_bacteria_data$Country))] <- "Antartica"
 
-```
 
 Creation of a plot that separates the amount of bacteria depending on country (stacked) and continent:
 
-```{r}
+
 # Stacked bar chart of countries across different organisms
 plot6 <- ggplot(only_bacteria_data, aes(x = correct_continent, fill = Country)) +
   geom_bar(position = "stack") +
@@ -280,11 +295,11 @@ print(plot6)
 
 #Save the plot
 ggsave("../results/countries_and_continents_vs_organisms_stacked_plot.png", plot6, width = 10, height = 6, dpi = 300)
-```
+
 
 ## Heat map of Organisms at each Country
 
-```{r}
+
 library(maps)
 world <- map_data("world")
 world_map_plot <- as.data.frame(select(only_bacteria_data, Country))
@@ -340,13 +355,13 @@ combined_plot <- plot7 + plot8 +
 combined_plot
 
 ggsave("../results/heat_map_of_bacteria_at_each_country.png", combined_plot, width = 10, height = 6, dpi = 300)
-```
+
 
 ## Heat map of Bacteria at each Continent
 
 -   ALGU S'ANIMA
 
-```{r Marina}
+
 library(maps)
 world <- map_data("world")
 world_map_plot_continent <- as.data.frame(select(only_bacteria_data, correct_continent))
@@ -392,4 +407,4 @@ plot9 <- ggplot(data = worldSubset_continent, mapping = aes(x = long, y = lat, g
 plot9
 
 ggsave("../results/heat_map_of_bacteria_at_each_continent.png", plot9, width = 10, height = 6, dpi = 300)
-```
+
