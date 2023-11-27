@@ -1,12 +1,21 @@
 ---
-title: "05_analysis"
-format: html
+title: "Sequence analysis"
+format:
+  html:
+    embed-resources: true
 editor: visual
 ---
 
 # Sequence analysis
 
-## Load augment dataset from step 4
+## Load libraries:
+```{r}
+library("msa")
+library("ape")
+library("seqinr")
+```
+
+## Load augmented dataset from step 4
 
 ```{r}
 tsv_file <- "../data/data_augmented.tsv"
@@ -15,10 +24,10 @@ data_augmented <- read_tsv(tsv_file)
 
 ## Group sequences by compound
 
-```{r}
-### Extract a vector of sequences
+Create a new dataset where the sequences from individual samples are joined in the same group if the organism degrade the same compound. Filter samples without sequence.
 
-# Split the dataset based on compound name
+```{r}
+
 compound_lists <- data_augmented |>
   filter(!is.na(Sequence)) |> 
   group_by(Compound_Name) |> 
@@ -89,7 +98,7 @@ aligned_compounds <- aligned_compounds |>
 
 ```{r}
 
-phylo_tree <- njs(aligned_compounds$distance_matrix[2][[1]])
+phylo_tree <- njs(aligned_compounds$distance_matrix[6][[1]])
 
 # Plot the tree
 plot(phylo_tree, main="Phylogenetic Tree of a compound example", cex=0.5)
