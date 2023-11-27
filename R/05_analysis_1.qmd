@@ -15,6 +15,8 @@ library("tidyverse")
 library("msa")
 library("ape")
 library("seqinr")
+library("ggseqlogo")
+source("99_proj_func.R")
 ```
 
 ## Load augmented dataset from step 4
@@ -29,12 +31,10 @@ data_augmented <- read_tsv(tsv_file)
 Create a new dataset where the sequences from individual samples are joined in the same group if the organism degrade the same compound. Filter samples without sequence.
 
 ```{r}
-
 compound_lists <- data_augmented |>
   filter(!is.na(Sequence)) |> 
   group_by(Compound_Name) |> 
   summarise(ProteinSequences = list(Sequence))
-
 ```
 
 ## Apply MSA on each compound
@@ -42,9 +42,8 @@ compound_lists <- data_augmented |>
 ```{r}
 # Perform MSA on each list of sequences
 aligned_compounds <- compound_lists |>
-  filter(map_lgl(ProteinSequences, ~length(.x) < 200)) |> 
+  filter(map_lgl(ProteinSequences, ~length(.x) < 50)) |> 
   mutate(MSA = map(ProteinSequences, ~msa(.x, type = "protein")))
-
 ```
 
 ## Consensus sequence
@@ -52,14 +51,6 @@ aligned_compounds <- compound_lists |>
 Extract consensus sequence from MSA and check the percentage of gaps and missing positions.
 
 ```{r}
-calculate_percentage <- function(consensus_sequence) {
-    
-    count <- str_count(consensus_sequence, fixed("-")) + str_count(consensus_sequence, fixed("?"))
-    total <- nchar(consensus_sequence)
-    percentage <- (count / total) * 100
-
-    return(percentage)
-}
 
 aligned_compounds <- aligned_compounds |>
   mutate(consensus_sequence = map(MSA, ~consensusString(consensusMatrix(.x)))) |>
@@ -113,33 +104,6 @@ plot(phylo_tree, main="Phylogenetic Tree of a compound example", cex=0.5)
 In order to make sequence logos on the core sequences, we need to calculate the best 9mer.
 
 ```{r}
-conMat <- consensusMatrix(aligned_compounds$MSA[17][[1]])
-
-mer_position_function <- function(consensus_mat) {
-  consensus_mat <- consensus_mat |>
-      as.data.frame() |>
-      mutate(position = row_number()) |>
-      pivot_longer(-position, names_to = "position_aa", values_to = "aa") |>
-      group_by(position) |>
-      mutate(position_score = max(aa)) |>
-      select(position, position_score) |>
-      distinct(position, .keep_all = TRUE)
-  
-  consensus_mat <- data.frame(
-    position = consensus_mat$position,
-    position_score = consensus_mat$position_score
-  )
-  
-  mer_position <- consensus_mat |>
-    mutate(mer_score = lead(position_score, n=1, default = 0) + lead(position_score, n=1, default = 0) + lead(position_score, n=2, default = 0) + lead(position_score, n=3, default = 0) + lead(position_score, n=4, default = 0) + lead(position_score, n=5, default = 0) + lead(position_score, n=6, default = 0) + lead(position_score, n=7, default = 0) + lead(position_score, n=8, default = 0)) |>
-    filter(mer_score == max(mer_score)) |>
-    slice_head(n = 1) |>
-    select(position) |>
-    pull()
-  
-  return(mer_position)
-}
-
 aligned_compounds <- aligned_compounds |>
   mutate(conMat = map(MSA, ~consensusMatrix(.x))) |>
   mutate(mer_position = map(conMat, ~mer_position_function(.x)))
@@ -147,18 +111,10 @@ aligned_compounds <- aligned_compounds |>
 
 ```{r}
 aligned_compounds <- aligned_compounds |>
-  mutate(extracted_chars = map(aligned_sequences, ~map(.x, ~str_sub(.x, 6, 6 + 8))))
-```
-
-```{r}
-aligned_compounds <- aligned_compounds |>
-  mutate(extracted_chars = map2(aligned_sequences, mer_position, ~map2(.x, rep(.y, length(.x)), ~str_sub(., .y, .y + 8)))) |>
-  mutate(extracted_chars = map(extracted_chars, ~unlist(.x)))
+  mutate(core = map2(aligned_sequences, mer_position, ~map2(.x, rep(.y, length(.x)), ~str_sub(., .y, .y + 8)))) |>
+  mutate(core = map(core, ~unlist(.x)))
 
 aligned_compounds <- aligned_compounds |>
-  mutate(seqlogo = map(extracted_chars, ~ggseqlogo(.x, seq_type = "aa")))
+  mutate(seqlogo = map(core, ~ggseqlogo(.x, seq_type = "aa")))
 ```
 
-```{r}
-aligned_compounds$seqlogo[18]
-```

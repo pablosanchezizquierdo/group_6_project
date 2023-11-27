@@ -27,6 +27,7 @@ library("seqinr")
 library("ggseqlogo")
 library("quarto")
 library("maps")
+source("99_proj_func.R")
 #| warning: false
 tsv_file <- "../data/data_clean.tsv"
 data_clean <- read_tsv(tsv_file)
