@@ -2641,207 +2641,26 @@ vertical-align: -.125em;
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Read all sheets from all Excel files and remove the &quot;PMID&quot; column from each sheet</span></span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>all_sheets <span class="ot">&lt;-</span> <span class="fu">map</span>(excel_files, read_excel_sheets) <span class="sc">|&gt;</span> </span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(<span class="sc">~</span> <span class="fu">lapply</span>(.x, <span class="cf">function</span>(df) df[,<span class="sc">-</span><span class="fu">which</span>(<span class="fu">names</span>(df) <span class="sc">==</span> <span class="st">&quot;PMID&quot;</span>)])) <span class="sc">|&gt;</span> </span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">flatten_df</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-New names:
-• `link` -&gt; `link...10`
-• `link` -&gt; `link...17`
-• `link` -&gt; `link...19`</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>all_sheets <span class="ot">&lt;-</span> all_sheets <span class="sc">|&gt;</span> <span class="fu">distinct</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">flatten_df</span>()</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>all_sheets <span class="ot">&lt;-</span> all_sheets <span class="sc">|&gt;</span> <span class="fu">distinct</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="save-data-into-a-single-table" class="level1">
 <h1>Save data into a single table:</h1>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the path for the output .tsv file</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>output_file_path <span class="ot">&lt;-</span> <span class="st">&quot;../data/data.tsv&quot;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the &#39;all_sheets&#39; data frame to a .tsv file</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="fu">write_delim</span>(all_sheets, <span class="at">file =</span> output_file_path, <span class="at">delim =</span> <span class="st">&quot;</span><span class="sc">\t</span><span class="st">&quot;</span>, <span class="at">col_names =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify that the file has been saved</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(output_file_path)) {</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Data has been saved to&quot;</span>, output_file_path, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Failed to save the data to&quot;</span>, output_file_path, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the path for the output .tsv file</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>output_file_path <span class="ot">&lt;-</span> <span class="st">&quot;../data/data.tsv&quot;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Save the &#39;all_sheets&#39; data frame to a .tsv file</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">write_delim</span>(all_sheets, <span class="at">file =</span> output_file_path, <span class="at">delim =</span> <span class="st">&quot;</span><span class="sc">\t</span><span class="st">&quot;</span>, <span class="at">col_names =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Verify that the file has been saved</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">file.exists</span>(output_file_path)) {</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Data has been saved to&quot;</span>, output_file_path, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Failed to save the data to&quot;</span>, output_file_path, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Data has been saved to ../data/data.tsv </code></pre>
 </div>
