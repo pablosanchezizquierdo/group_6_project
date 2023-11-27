@@ -1,12 +1,16 @@
 ---
 title: "06_analisys_2"
-format: html
+format:
+  html:
+    embed-resources: true
 editor: visual
 ---
 
 ## Loading dataset
 
 ```{r}
+library("tidyverse")
+
 tsv_file <- "../data/data_augmented.tsv"
 data_augmented <- read_tsv(tsv_file, show_col_types = FALSE)
 ```

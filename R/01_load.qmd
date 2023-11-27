@@ -1,15 +1,24 @@
 ---
 title: "01_load"
-format: html
+format:
+  html:
+    embed-resources: true
 editor: visual
 ---
+## Load libraries
+```{r}
+#| message: false
+library("tidyverse")
+library("readx1")
+```
+
 
 # Load raw data from the "Genes" dataset and join all datasets:
 
 The original data is structured in the following manner: - The "Genes" folder contains a number of excel files. - Each excel file corresponds to a persistant organic pollutant (POP) compound. - Each excel file contains a number of sheets. - Each excel sheet corresponds to a gene targeting bioremediation of said POP. - Each excel sheet contains 28 variables and a number of observations.
 
 ```{r}
-#| message: false
+
 # Define a function to read all sheets from a given Excel file
 read_excel_sheets <- function(file_path) {
   sheets <- excel_sheets(file_path)
