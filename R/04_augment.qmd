@@ -5,7 +5,9 @@ format:
     embed-resources: true
 editor: visual
 ---
+
 ## Loading libraries:
+
 ```{r}
 #| message: false
 library("tidyverse")
@@ -60,12 +62,14 @@ data_augmented <- left_join(data_clean,
 
 ## Add KEGG pathways
 
+The last thing we have to do is adding the corresponding pathways to our samples. Hence, we first retrieve the first pathway name for each KEGG ID from the KEGG database using the "keggGet" function. Then, we create a new data frame, which contains unique KEGG IDs with their corresponding first pathways. Finally, we join this new data frame with the original data frame based on our "KEGG_Orthology" column. Now for each sample we have its own pathway, which will be useful for our analysis.
+
 ```{r}
 
-# Function to retrieve the first pathway for a given KO ID
-get_first_pathway_name <- function(ko_id) {
+# Function to retrieve the first pathway for a given KEGG ID
+get_first_pathway_name <- function(kegg_id) {
     pathway_info <- tryCatch({
-        keggGet(ko_id)
+        keggGet(kegg_id)
     }, 
     error = function(e) return(NA))
     if (!is.na(pathway_info) && !is.null(pathway_info[[1]]$PATHWAY)) {
@@ -78,7 +82,7 @@ get_first_pathway_name <- function(ko_id) {
 }
 
 # Extract unique KO IDs with their first pathways
-unique_ko_pathways <- data_augmented |> 
+unique_kegg_pathways <- data_augmented |> 
     distinct(KEGG_Orthology) |> 
     mutate(Pathway = map_chr(KEGG_Orthology, 
                              get_first_pathway_name))
