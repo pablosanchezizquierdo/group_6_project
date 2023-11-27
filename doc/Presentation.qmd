@@ -13,81 +13,59 @@ format:
 
 ## What is bioremediation?
 
-
-::: {.fragment fragment-index=1}
-
-
-![](logos/climatechange.png){.absolute top="150" left="0" width="500" height="500" responsive="true"} 
-
+::: {.fragment fragment-index="1"}
+![](logos/climatechange.png){.absolute top="150" left="0" width="500" height="500" responsive="true"}
 :::
 
-::: {.fragment fragment-index=2}
+::: {.fragment fragment-index="2"}
 ![](logos/bioremediation.png){.absolute top="150" left="500" width="600" height="500" responsive="true"}
 :::
 
-::: {.fragment fragment-index=3}
-
+::: {.fragment fragment-index="3"}
 ![](logos/cross.png){.absolute top="220" left="820" width="300" height="300"}
-
 :::
 
 ## OUR DATA {.smaller}
 
-::: {.fragment fragment-index=1}
-
-POP (persistent organic pollutants): clean-up technique for reclaiming POP-contaminated environments. It is attractive, eco-friendly and cost-efficient. 
-
-
+::: {.fragment fragment-index="1"}
+POP (persistent organic pollutants): clean-up technique for reclaiming POP-contaminated environments. It is attractive, eco-friendly and cost-efficient.
 :::
 
-
-::: {.fragment fragment-index=2}
-
-Manually curated integrative database dedicated to microbial bioremediation of persistent organic pollutants (POP) research. 
-
+::: {.fragment fragment-index="2"}
+Manually curated integrative database dedicated to microbial bioremediation of persistent organic pollutants (POP) research.
 :::
 
-::: {.fragment fragment-index=3}
-- **Genes** <!--# : POP metabolizing microbial strains identified to possess the functional genes associated with the POP biodegradation processes collected from the scientific literature and public databases. -->
-- Strains
-- **Sequences** (Complementary) <!--#: Nucleotide and protein sequences of the POP degrading microbial strains collected in this database. -->
-- Compound
-- Calculated properties 01
-
+::: {.fragment fragment-index="3"}
+-   **Genes** <!--# : POP metabolizing microbial strains identified to possess the functional genes associated with the POP biodegradation processes collected from the scientific literature and public databases. -->
+-   Strains
+-   **Sequences** (Complementary) <!--#: Nucleotide and protein sequences of the POP degrading microbial strains collected in this database. -->
+-   Compound
+-   Calculated properties 01
 :::
 
-::: {.fragment fragment-index=4}
-We added the **corresponding sequence** to each sample. 
-::: 
+::: {.fragment fragment-index="4"}
+We added the **corresponding sequence** to each sample.
+:::
 
-::: {.fragment fragment-index=5}
-**Final dataset size**:  5733 observations of 12 variables
+::: {.fragment fragment-index="5"}
+**Final dataset size**: 5733 observations of 12 variables
 :::
 
 ## GOAL {.center}
 
-
 **Elucidate patterns within organisms with bioremediation potential. To promote more effective and sustainable solutions.**
 
-![](logos/healtyplanet.png){.absolute top="250" left="375" width="300" height="300"}
-![](logos/SuperBug.png){.absolute top="300" left="450" width="150" height="150"}
-
-
+![](logos/healtyplanet.png){.absolute top="250" left="375" width="300" height="300"} ![](logos/SuperBug.png){.absolute top="300" left="450" width="150" height="150"}
 
 ## CLEANING {.smaller}
 
-::: {.incremental}
-
-- Select columns of interest: *Compound Name*, *Enzyme Name*, *Encoding Gene*, *KEGG Orthology*, *Organism*, *GenBankID*, *Strain ID/Microorganism*, *UniProt ID*, *Protein ID*, *Continent*, *Country*, *Isolation source*, *Habitat notes*
-- Deal with null values
-  - Delete columns with majority null values (except from *KEGG Orthology*)
-- Change variable names 
-- Standarization of naming convention of: *Encoding Gene*, *Continent*, *Country*
-
-
+::: incremental
+-   Select columns of interest: *Compound Name*, *Enzyme Name*, *Encoding Gene*, *KEGG Orthology*, *Organism*, *GenBankID*, *Strain ID/Microorganism*, *UniProt ID*, *Protein ID*, *Continent*, *Country*, *Isolation source*, *Habitat notes*
+-   Deal with null values
+    -   Delete columns with majority null values (except from *KEGG Orthology*)
+-   Change variable names
+-   Standarization of naming convention of: *Encoding Gene*, *Continent*, *Country*
 :::
-
-
 
 ## DATA EXPLORATION: ORGANISM DISTRIBUTION {.smaller}
 
@@ -99,60 +77,66 @@ We will do our study only with **Bacteria** samples.
 
 ![](../results/genes_vs_compounds_stacked_plot.png){.absolute top="275" left="200" width="700" height="400"}
 
-
-::: {.incremental}
-
-- Too many genes, is there anyting we can do?
-  - USE: KEGG Orthology
+::: incremental
+-   Too many genes, is there anyting we can do?
+    -   USE: KEGG Orthology
 :::
 
-
-
-## RESULTS: WorldMap
+## RESULTS: World Distribution of bioremediation {.center}
 
 ![](../results/heat_map_of_bacteria_at_each_country.png)
 
 ## RESULTS: Orthology Analysis
 
-![](../results/compound_pathways_plot.png){.absolute top="125" left="-100" width="700" height="500"}
+![](../results/compound_pathways_plot.png){.absolute top="125" left="-100" width="700" height="500"} 
 ![](../results/most_used_pathways.png){.absolute top="125" left="600" width="600" height="500"}
 
 ## RESULTS: Sequence Analysis
 
-KLK?
+::: {.fragment fragment-index="1"}
+For each compound:
+:::
+::: {.fragment fragment-index="2"}
+- MSA 
+:::
+::: {.fragment fragment-index="3"}
+- Phylogenetic tree
+:::
+::: {.fragment fragment-index="4"}
+- Core sequence
+:::
+::: {.fragment fragment-index="5"}
+- Sequence logo
+:::
+::: {.fragment fragment-index="6"}
+![](../results/seqlogo.png){.absolute top="125" left="550" width="600" height="500"}
+:::
 
 ## CONCLUSIONS {.smaller}
 
-
-::: {.fragment fragment-index=1}
-1) Bioremediation organisms studied up to date are **mainly Bacteria**
-
+::: {.fragment fragment-index="1"}
+1)  Bioremediation organisms studied up to date are **mainly Bacteria**
 :::
 
-::: {.fragment fragment-index=2}
-
-2) There are still **a lot of countries to be explored**
-
-::: 
-::: {.fragment fragment-index=3}
-
-3) **Chlorocyclohexane and chlorobenzene degradation pathway** is involved in the bioremediation of many POP compounds
-
-::: 
-
-::: {.fragment fragment-index=4}
-
-4) **Core sequence LOGO for genes degrading the same compounds** have been determined by multiple sequence alignment
-
+::: {.fragment fragment-index="2"}
+2)  There are still **a lot of countries to be explored**
 :::
 
-::: {.fragment fragment-index=5}
-
-5) Core sequence LOGO are very different depending on what compound they target and they can be **grouped by proximity** by performing a phylogenetic tree analysis
+::: {.fragment fragment-index="3"}
+3)  **Chlorocyclohexane and chlorobenzene degradation pathway** is involved in the bioremediation of many POP compounds
 :::
 
+::: {.fragment fragment-index="4"}
+4)  **Core sequence LOGO for genes degrading the same compounds** have been determined by multiple sequence alignment
+:::
+
+::: {.fragment fragment-index="5"}
+5)  Core sequence LOGO are very different depending on what compound they target and they can be **grouped by proximity** by performing a phylogenetic tree analysis
+:::
 
 ## THANK YOU! Microbial bioremediation of persistent organic pollutants (POP) {.center .smaller}
+
+```{=html}
 <style>
 .center {
   text-align: center;
@@ -163,5 +147,5 @@ KLK?
   height: 100vh; /* This ensures full vertical height */
 }
 </style>
-G6: Javier López, Pablo Sánchez-Izquierdo, Víctor Fiérrez and Laura Casanovas
-![](logos/happyworld.png)
+```
+G6: Javier López, Pablo Sánchez-Izquierdo, Víctor Fiérrez and Laura Casanovas ![](logos/happyworld.png)
