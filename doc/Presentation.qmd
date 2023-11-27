@@ -1,24 +1,56 @@
 ---
 title: "Group 6: Microbial bioremediation of persistent organic pollutants (POP)"
-format: revealjs
-editor: visual
+format:
+  revealjs: 
+    slide-number: true
+    theme: sky
+    transition: slide 
+    logo: "DTU_logo.png"
+    footer: "R for Bio Data Science 2023"
 ---
 
-## Quarto
+## What is bioremediation?
 
-Quarto enables you to weave together content and executable code into a finished presentation. To learn more about Quarto presentations see <https://quarto.org/docs/presentations/>.
 
-## Bullets
+::: {.fragment fragment-index=1}
 
-When you click the **Render** button a document will be generated that includes:
 
--   Content authored with markdown
--   Output from executable code
+![](climatechange.png){.absolute top="150" left="0" width="500" height="500" responsive="true"} 
 
-## Code
+:::
 
-When you click the **Render** button a presentation will be generated that includes both content and the output of embedded code. You can embed code like this:
+::: {.fragment fragment-index=2}
+![](bioremediation.png){.absolute top="150" left="500" width="600" height="500" responsive="true"}
+:::
 
-```{r}
-1 + 1
-```
+::: {.fragment fragment-index=3}
+
+![](cross.png){.absolute top="220" left="820" width="300" height="300"}
+
+:::
+
+## OUR DATASET + GOAL
+
+- POP (persistent organic pollutants): attractive, ecofriendly, and cost-efficient clean-up technique for reclaiming POP-contaminated environments.
+-   size, attributes, etc
+-   goal
+
+## CLEANING
+
+-   Que vam canviar i perq? quines cols ens qedem?
+
+## DATA EXPLORATION 1
+
+-   ...
+
+## DATA EXPLORATION 2
+
+-   ...
+
+## NEW VARIABLES
+
+-   Explicar el q vam fer en el augment
+
+## RESULTS
+
+![](../results/bacteria_vs_compounds_distribution.png){.absolute top="200" left="0" width="350" height="300"}

@@ -35,7 +35,6 @@ columns_to_keep <- c("Compound Name",
 # Subset the 'data' data frame to keep only the specified columns
 data_reduced <- data |> 
   select(all_of(columns_to_keep))
-
 ```
 
 ## Visualize how many NA values we have
@@ -75,7 +74,7 @@ ggplot(missing_data,
        x = "Column", 
        y = "Percentage") +
   scale_y_continuous(labels = scales::percent_format(scale = 1)) +
-  theme(axis.text.x = element_text(angle = 45, 
+  theme(axis.text.x = element_text(angle = 90, 
                                    hjust = 1))
 
 ```
@@ -141,7 +140,7 @@ dplyr::count(unique_values_EcondingGene_clean)
 
 ```{r}
 data_reduced <- data_reduced |> 
-  rename(Continent = `Continent where study sampling was done (Collections)`)
+  dplyr::rename(Continent = `Continent where study sampling was done (Collections)`)
 ```
 
 ```{r}
@@ -476,7 +475,7 @@ Now, we delete spaces between words in variables name to avoid analysis problems
 
 ```{r}
 data_reduced <- data_reduced |>
-  rename("Compound_Name" = "Compound Name", "Enzyme_Name" = "Enzyme Name", "Encoding_Gene" = "Encoding Gene", "KEGG_Orthology" = "KEGG Orthology", "Strain_ID/Microorganism" = "Strain ID/Microorganism", "Protein_ID" = "Protein ID")
+  dplyr::rename("Compound_Name" = "Compound Name", "Enzyme_Name" = "Enzyme Name", "Encoding_Gene" = "Encoding Gene", "KEGG_Orthology" = "KEGG Orthology", "Strain_ID/Microorganism" = "Strain ID/Microorganism", "Protein_ID" = "Protein ID")
 ```
 
 ### KEGG Orhology with spaces in ID
@@ -488,7 +487,6 @@ As we will use KEGG ID for further analyisis we need to make sure that there anr
 data_reduced <- data_reduced |> 
     mutate(KEGG_Orthology = substr(KEGG_Orthology, 1, 6))
 ```
-
 
 ## Save cleaned data
 

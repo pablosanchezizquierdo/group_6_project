@@ -5,6 +5,12 @@ format:
     embed-resources: true
 editor: visual
 ---
+## Loading libraries:
+```{r}
+#| message: false
+library("tidyverse")
+library("KEGGREST")
+```
 
 # Protein sequences
 
@@ -13,6 +19,7 @@ Protein sequences extracted from the raw fasta file "protein_seqs.fasta" are add
 ## Load clean dataset from step 2
 
 ```{r}
+#| message: false
 tsv_file <- "../data/data_clean.tsv"
 data_clean <- read_tsv(tsv_file)
 ```
@@ -27,21 +34,28 @@ fasta_vector <- read_lines(fasta_file)             # Load fasta file as a charac
 
 seq_df <- tibble(line = fasta_vector) |>           # Create a tibble dataframe where each row corresponds to a line in the fasta file
   mutate(
-    Protein_ID = str_extract(line, "^>\\S+"),      # Store the >ID from the header. It stores an NA value if the line corresponds to a sequence
-    Sequence = str_extract(line, "^\\w+"),         # Store the sequence. It stores an NA value if the line corresponds to the header
-    Protein_ID = str_replace(Protein_ID, ">", "")  # Delete the ">" symbol from the protein ID
+    Protein_ID = str_extract(line, 
+                             "^>\\S+"),      # Store the >ID from the header. It stores an NA value if the line corresponds to a sequence
+    Sequence = str_extract(line, 
+                           "^\\w+"),         # Store the sequence. It stores an NA value if the line corresponds to the header
+    Protein_ID = str_replace(Protein_ID, 
+                             ">", 
+                             "")  # Delete the ">" symbol from the protein ID
   ) |>
   fill(Protein_ID) |>                              # Replace NA values in the Protein_ID column using the protein ID from the previous row.
   filter(!is.na(Sequence)) |>                      # Delete duplicate samples that contain NA values in the Sequence column
-  select(Protein_ID, Sequence)                     # Delete the original fasta lines
+  select(Protein_ID, 
+         Sequence)                     # Delete the original fasta lines
 ```
 
-## Join dataframes
+## Join data frames
 
 Join both data frames using the Protein ID matches to incorporate the sequence column to the data_clean data frame, creating a new data frame called data_augmented.
 
 ```{r}
-data_augmented <- left_join(data_clean, seq_df, by = "Protein_ID")
+data_augmented <- left_join(data_clean, 
+                            seq_df, 
+                            by = "Protein_ID")
 ```
 
 ## Add KEGG pathways
@@ -52,8 +66,8 @@ data_augmented <- left_join(data_clean, seq_df, by = "Protein_ID")
 get_first_pathway_name <- function(ko_id) {
     pathway_info <- tryCatch({
         keggGet(ko_id)
-    }, error = function(e) return(NA))
-    
+    }, 
+    error = function(e) return(NA))
     if (!is.na(pathway_info) && !is.null(pathway_info[[1]]$PATHWAY)) {
         # Extracting only the first pathway name
         first_pathway_name <- pathway_info[[1]]$PATHWAY[[1]]
@@ -66,11 +80,13 @@ get_first_pathway_name <- function(ko_id) {
 # Extract unique KO IDs with their first pathways
 unique_ko_pathways <- data_augmented |> 
     distinct(KEGG_Orthology) |> 
-    mutate(Pathway = map_chr(KEGG_Orthology, get_first_pathway_name))
+    mutate(Pathway = map_chr(KEGG_Orthology, 
+                             get_first_pathway_name))
 
 # Join this with the original data frame
 data_augmented <- data_augmented |> 
-    left_join(unique_ko_pathways, by = "KEGG_Orthology")
+    left_join(unique_ko_pathways, 
+              by = "KEGG_Orthology")
 
 ```
 
@@ -82,7 +98,11 @@ data_augmented <- data_augmented |>
 output_file_path <- "../data/data_augmented.tsv"
 
 # Save the subset data frame to a .tsv file
-write.table(data_augmented, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(data_augmented, 
+            file = output_file_path, 
+            sep = "\t", 
+            quote = FALSE, 
+            row.names = FALSE)
 
 # Verify that the file has been saved
 if (file.exists(output_file_path)) {
