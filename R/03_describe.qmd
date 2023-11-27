@@ -189,8 +189,25 @@ We observe that fungi affects three compounds. Nonetheless, bacteria also affect
 Hence, we decided that is not of much interest to keep the Fungi and Eukariota entries in the dataset. It will cause more trouble to us than help in the future and removing them will make the analysis of the data more straight forward.
 
 ```{r}
+# We filter for Bacteria:
 data_clean <- data_clean |> 
   filter(Organism == 'Bacteria')
+
+# We overwrite the file:
+
+# Define the path for the output .tsv file
+output_file_path <- "../data/data_clean.tsv"
+
+# Save the subset data frame to a .tsv file
+write.table(data_reduced, file = output_file_path, sep = "\t", quote = FALSE, row.names = FALSE)
+
+# Verify that the file has been saved
+if (file.exists(output_file_path)) {
+  cat("Data with selected columns has been saved to", output_file_path, "\n")
+} else {
+  cat("Failed to save the data with selected columns to", output_file_path, "\n")
+}
+
 ```
 
 ## Genes across different compounds
