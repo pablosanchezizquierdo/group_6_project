@@ -8,7 +8,7 @@ editor: visual
 
 # Sequence analysis
 
-## Load libraries:
+Load libraries
 
 ```{r}
 library("tidyverse")
@@ -21,7 +21,7 @@ library("ggseqlogo")
 source("99_proj_func.R")
 ```
 
-## Load augmented dataset from step 4
+Load augmented dataset from step 4
 
 ```{r}
 tsv_file <- "../data/data_augmented.tsv"
@@ -63,12 +63,15 @@ aligned_compounds <- aligned_compounds |>
 Plot the percentages for each compound
 
 ```{r}
-aligned_compounds |>
-  ggplot(aes(x = Compound_Name, y = percentage)) + 
+percentage_plot <- ggplot(aligned_compounds, aes(x = Compound_Name, y = percentage)) + 
     geom_bar(stat = "identity", fill = "steelblue") +
     theme_minimal() +
     theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1, vjust = 1), axis.text.y = element_text(size = 8))
     labs(title = "Percentage of missing positions for each compound alignment", x = "Compounds", y = "Percentage")
+    
+ggsave("../results/percentage_consensus_seq.png", percentage_plot)
+
+percentage_plot
 ```
 
 ## Aligned sequences
@@ -93,11 +96,10 @@ aligned_compounds <- aligned_compounds |>
 
 ```{r}
 
-phylo_tree <- njs(aligned_compounds$distance_matrix[6][[1]])
+Hexabromobiphenyl_tree <- njs(aligned_compounds$distance_matrix[5][[1]])
 
 # Plot the tree
-plot(phylo_tree, main="Phylogenetic Tree of a compound example", cex=0.5)
-
+plot(Hexabromobiphenyl_tree, main="Phylogenetic Tree of Hexabromobiphenyl", cex=0.5)
 ```
 
 ## Core sequences
@@ -111,6 +113,7 @@ aligned_compounds <- aligned_compounds |>
 ```
 
 ```{r}
+#| warning: false
 aligned_compounds <- aligned_compounds |>
   mutate(core = map2(aligned_sequences, mer_position, ~map2(.x, rep(.y, length(.x)), ~str_sub(., .y, .y + 8)))) |>
   mutate(core = map(core, ~unlist(.x)))
@@ -118,3 +121,13 @@ aligned_compounds <- aligned_compounds |>
 aligned_compounds <- aligned_compounds |>
   mutate(seqlogo = map(core, ~ggseqlogo(.x, seq_type = "aa")))
 ```
+
+```{r}
+aligned_compounds$seqlogo
+```
+```{r}
+Hexabromobiphenyl_seqlogo <- aligned_compounds$seqlogo[5][[1]]
+
+ggsave("../results/seqlogo.png", Hexabromobiphenyl_seqlogo)
+```
+
