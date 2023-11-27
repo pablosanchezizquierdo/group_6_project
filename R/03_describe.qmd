@@ -212,98 +212,27 @@ uncult_nonuncult
 
 -   EXPLAIN
 
-## Continent and Countries Exploration
-
-```{r}
-# Stacked bar chart of countries across different organisms
-plot5 <- ggplot(data_clean, aes(x = Organism, fill = Country)) +
-  geom_bar(position = "stack") +
-  labs(title = "Country Distribution Across Organisms", x = "Organism", y = "Count") +
-  theme_minimal() + 
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size=6),
-    axis.text.y = element_text(size=6),
-    plot.title = element_text(size = 10),
-    axis.title.x = element_text(size = 8),  # Adjust the size of the x-axis label
-    axis.title.y = element_text(size = 8),  # Adjust the size of the y-axis label
-    legend.position = "bottom",
-    legend.box = "vertical",  # Arrange legend items vertically
-    legend.key.height = unit(0.5, "line"),  # Adjust the height of each legend item
-    legend.key.size = unit(0.05, "cm"),
-    legend.text = element_text(size = 6),  # Adjust the size of the legend text
-    legend.title = element_text(size = 7)  # Adjust the size of the legend title
-    ) +
-  guides(fill = guide_legend(ncol = 12))  # Adjust the number of columns in the legend
-print(plot5)
-
-#Save the plot
-ggsave("../results/countries_vs_organisms_stacked_plot.png", plot5, width = 10, height = 6, dpi = 300)
-```
-
-Creation of a new data set with only information containing bacteria since it is more than 99% of the organisms:
-
-```{r}
-only_bacteria_data <- as.data.frame(filter(data_clean, Organism == "Bacteria"))
-
-only_bacteria_data$correct_continent <- rep(NA, length = nrow(only_bacteria_data))
-only_bacteria_data$correct_continent[which(grepl("Spain|Czech Republic|France|Germany|Poland|United Kingdom|Switzerland|Belgium|Greece|Sweden|Netherlands|Ukraine|Italy|Portugal|Denmark|Hungary|Norway|Austria|Serbia|Finland|Mediterranean Sea", only_bacteria_data$Country))] <- "Europe"
-only_bacteria_data$correct_continent[which(grepl("Tanzania|South Africa| Ethiopia|Morocco|Cameroon|Nigeria|Ghana|Uganda|Tunisia|Egypt", only_bacteria_data$Country))] <- "Africa"
-
-only_bacteria_data$correct_continent[which(grepl("USA|Canada|Peru|Brazil|America|Venezuela|Panama|Mexico|Chile|French Guiana", only_bacteria_data$Country))] <- "America"
-
-only_bacteria_data$correct_continent[which(grepl("Australia|Kiribati", only_bacteria_data$Country))] <- "Oceania"
-only_bacteria_data$correct_continent[which(grepl("Japan|India|China|Russia|South Korea|Turkey|Iran|Israel|Taiwan|Saudi Arabia|Kuwait|Singapore|Vietnam|Pakistan|Indonesia|Zhongshan Station|Thailand|Myanmar", only_bacteria_data$Country))] <- "Asia"
-only_bacteria_data$correct_continent[which(grepl("Antartica|South Shetland Islands", only_bacteria_data$Country))] <- "Antartica"
-
-```
-
-Creation of a plot that separates the amount of bacteria depending on country (stacked) and continent:
-
-```{r}
-# Stacked bar chart of countries across different organisms
-plot6 <- ggplot(only_bacteria_data, aes(x = correct_continent, fill = Country)) +
-  geom_bar(position = "stack") +
-  labs(title = "Bacteria distribution across Continent and Country", x = "Continent", y = "Count") +
-  theme_minimal() + 
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1, size=6),
-    axis.text.y = element_text(size=6),
-    plot.title = element_text(size = 10),
-    axis.title.x = element_text(size = 8),  # Adjust the size of the x-axis label
-    axis.title.y = element_text(size = 8),  # Adjust the size of the y-axis label
-    legend.position = "bottom",
-    legend.box = "vertical",  # Arrange legend items vertically
-    legend.key.height = unit(0.5, "line"),  # Adjust the height of each legend item
-    legend.key.size = unit(0.05, "cm"),
-    legend.text = element_text(size = 6),  # Adjust the size of the legend text
-    legend.title = element_text(size = 7)  # Adjust the size of the legend title
-    ) +
-  guides(fill = guide_legend(ncol = 12))  # Adjust the number of columns in the legend
-print(plot6)
-
-#Save the plot
-ggsave("../results/countries_and_continents_vs_organisms_stacked_plot.png", plot6, width = 10, height = 6, dpi = 300)
-```
-
 ## Heat map of Organisms at each Country
-
 ```{r}
+# We need to use another library called "maps":
 library(maps)
+
 world <- map_data("world")
-world_map_plot <- as.data.frame(select(only_bacteria_data, Country))
-world_map_plot <- count(world_map_plot, Country)
-names(world_map_plot)[names(world_map_plot) == "n"] <- "Count"
-names(world_map_plot)[names(world_map_plot) == "Country"] <- "region"
 
-Count <- as.numeric(as.character(world_map_plot$Count))
+# First, we select the "Country" variable from data_clean and count how many times each country appears:
+world_map_plot <- data_clean |> 
+  filter(Organism == "Bacteria") |> 
+  select(Country) |> 
+  group_by(Country) |> 
+  summarise(log10Count = log(n(), 10)) |>     # We need to do log(,10) since Canada has way many 
+  dplyr::rename("region" = "Country")    # We need to rename the variable for the latter join
 
-world_map_plot_no_canada <- filter(world_map_plot, region != "Canada")
+# Now we join the world data set (comes with the R package already) with our dataset:
+worldSubset <- inner_join(world, 
+                          world_map_plot, 
+                          by = "region")
 
-
-diff <- setdiff(world$region, world_map_plot$region)
-worldSubset <- inner_join(world, world_map_plot, by = "region")
-worldSubset2 <- inner_join(world, world_map_plot_no_canada, by = "region")
-
+# There is a set of things we want to not show in the plot:
 plain <- theme(
   axis.text = element_blank(),
   axis.line = element_blank(),
@@ -314,85 +243,23 @@ plain <- theme(
   panel.background = element_rect(fill = "white"),
   plot.title = element_text(hjust = 0.5)
 )
-plot7 <- ggplot(data = worldSubset, mapping = aes(x = long, y = lat, group = group)) + 
-  geom_polygon(aes(fill = Count)) +  
+
+# Now we plot:
+plot7 <- ggplot(data = worldSubset, 
+                mapping = aes(x = long, 
+                              y = lat, 
+                              group = group)) + 
+  geom_polygon(aes(fill = log10Count)) +  
   coord_fixed(1.3) +
-  scale_fill_distiller(palette ="RdBu", direction = -1) + # or direction=1
+  scale_fill_distiller(palette ="Reds", 
+                       direction = 1) + 
   plain +
-  theme(legend.position = "bottom")+
-  ggtitle("With Canada")
+  theme(legend.position = "bottom") +
+  ggtitle("Sample distribution around the world (Bacteria)")
+
 plot7
 
-plot8 <- ggplot(data = worldSubset2, mapping = aes(x = long, y = lat, group = group)) + 
-  geom_polygon(aes(fill = Count)) +  
-  coord_fixed(1.3) +
-  scale_fill_distiller(palette ="RdBu", direction = -1) +
-  plain +
-  ggtitle("Without Canada")
-
-plot8
-
-library(patchwork)
-
-combined_plot <- plot7 + plot8 +
-  plot_layout(ncol = 2)+
-  plot_annotation("Bacteria distribution around the world",
-                  theme = theme(plot.title = element_text(size = 16)))+
-  theme(legend.position = "bottom")
-
-combined_plot
-
-ggsave("../results/heat_map_of_bacteria_at_each_country.png", combined_plot, width = 10, height = 6, dpi = 300)
+ggsave("../results/heat_map_of_bacteria_at_each_country.png", plot7, width = 10, height = 6, dpi = 300)
 ```
 
-## Heat map of Bacteria at each Continent
 
--   ALGU S'ANIMA
-
-```{r Marina}
-library(maps)
-world <- map_data("world")
-world_map_plot_continent <- as.data.frame(select(only_bacteria_data, correct_continent))
-world_map_plot_continent <- count(world_map_plot_continent, correct_continent)
-names(world_map_plot_continent)[names(world_map_plot_continent) == "n"] <- "Count"
-names(world_map_plot_continent)[names(world_map_plot_continent) == "correct_continent"] <- "continent"
-
-Count <- as.numeric(as.character(world_map_plot_continent$Count))
-
-world$continent <- rep(NA, length = nrow(world))
-
-world$continent[which(grepl("Mediterranean Sea|Greenland|Albania|Andorra|Austria|Belarus|Belgium|Bosnia and Herzegovina|Bulgaria|Croatia|Cyprus|Czech Republic|Denmark|Estonia|Finland|France|Germany|Greece|Hungary|Iceland|Ireland|Italy|Kosovo|Latvia|Liechtenstein|Lithuania|Luxembourg|Malta|Moldova|Monaco|Montenegro|Netherlands|North Macedonia|Norway|Poland|Portugal|Romania|Russia| San Marino|Serbia|Slovakia|Slovenia|Spain|Sweden|Switzerland|Ukraine|United Kingdom|Vatican City", world$region))] <- "Europe"
-
-world$continent[which(grepl("Algeria|Angola|Benin|Botswana|Burkina Faso|Burundi|Cabo Verde|Cameroon|Central African Republic|Chad|Comoros|Democratic Republic of the Congo|Djibouti|Egypt|Equatorial Guinea|Eritrea|Eswatini (formerly Swaziland)|Ethiopia|Gabon|Gambia|Ghana|Guinea|Guinea-Bissau|Ivory Coast|Kenya|Lesotho|Liberia|Libya|Madagascar|Malawi|Mali|Mauritania|Mauritius|Morocco|Mozambique|Namibia|Niger|Nigeria|Rwanda|Sao Tome and Principe|Senegal|Seychelles|Sierra Leone|Somalia|South Africa|South Sudan|Sudan|Tanzania|Togo|Tunisia|Uganda|Zambia|Zimbabwe", world$region))] <- "Africa"
-
-world$continent[which(grepl("USA|Canada|Peru|Brazil|America|Venezuela|Panama|Mexico|Chile|French Guiana|Argentina|Colombia|Paraguay|Cuba|Dominican Republic|Uruguay|Ecuador|Bolivia|French Guiana|Nicaragua|Honduras|Guatemala|El Salvador|Belize|Haiti|Costa Rica|Surinam|Guyana", world$region))] <- "America"
-
-world$continent[which(grepl("Australia|Fiji|Kiribati|Marshall Islands|Micronesia |Nauru|New Zealand|Palau|Papua New Guinea|Samoa|Solomon Islands|Tonga|Tuvalu|Vanuatu", world$Country))] <- "Oceania"
-
-world$continent[which(grepl("Afghanistan|Armenia|Azerbaijan|Bahrain|Bangladesh|Bhutan|Brunei|Cambodia|China|Cyprus|Georgia|India|Indonesia|Iran|Iraq|Israel|Japan|Jordan|Kazakhstan|Kuwait|Kyrgyzstan|Laos|Lebanon|Malaysia|Maldives|Mongolia|Myanmar|Nepal|North Korea|Oman|Pakistan|Palestine|Philippines|Qatar|Saudi Arabia|Singapore|South Korea|Sri Lanka|Syria|Taiwan|Tajikistan|Thailand|Timor-Leste|Turkey|Turkmenistan|United Arab Emirates|Uzbekistan|Vietnam|Yemen", world$region))] <- "Asia"
-
-world$continent[which(grepl("Antartica|South Shetland Islands", world$region))] <- "Antartica"
-
-diff <- setdiff(world$continent, world_map_plot_continent$continent)
-worldSubset_continent <- inner_join(world, world_map_plot_continent, by = "continent")
-
-plain <- theme(
-  axis.text = element_blank(),
-  axis.line = element_blank(),
-  axis.ticks = element_blank(),
-  panel.border = element_blank(),
-  panel.grid = element_blank(),
-  axis.title = element_blank(),
-  panel.background = element_rect(fill = "grey80"),
-  plot.title = element_text(hjust = 0.5)
-)
-plot9 <- ggplot(data = worldSubset_continent, mapping = aes(x = long, y = lat, group = group)) + 
-  geom_polygon(aes(fill = Count)) +  
-  coord_fixed(1.3) +
-  scale_fill_distiller(palette ="RdBu", direction = -1) + # or direction=1
-  plain +
-  ggtitle("Heat map of Bacteria at each Continent")
-plot9
-
-ggsave("../results/heat_map_of_bacteria_at_each_continent.png", plot9, width = 10, height = 6, dpi = 300)
-```
