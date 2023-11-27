@@ -186,6 +186,13 @@ plot_fungi_compound
 
 We observe that fungi affects three compounds. Nonetheless, bacteria also affect those compounds. We would need more data to extract any conclusions, hence, from now on, we will focus on just analyzing bacteria data.
 
+Hence, we decided that is not of much interest to keep the Fungi and Eukariota entries in the dataset. It will cause more trouble to us than help in the future and removing them will make the analysis of the data more straight forward.
+
+```{r}
+data_clean <- data_clean |> 
+  filter(Organism == 'Bacteria')
+```
+
 ## Genes across different compounds
 
 ```{r}
