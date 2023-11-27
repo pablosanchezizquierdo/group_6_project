@@ -1,5 +1,5 @@
 ---
-title: "03_describe.qmd"
+title: "03_describe"
 format: 
   html:
     embed-resources: true

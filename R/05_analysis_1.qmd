@@ -1,5 +1,5 @@
 ---
-title: "Sequence analysis"
+title: "05_analysis_1"
 format:
   html:
     embed-resources: true
@@ -8,7 +8,9 @@ editor: visual
 
 # Sequence analysis
 
-Load libraries
+In this section we perform a sequence analysis, divided in four subsections: Multiple Sequence Alignment (MSA), Phylogeny, Core sequence and Sequence Logo
+
+### Load libraries
 
 ```{r}
 #| message: false
@@ -22,16 +24,18 @@ library("ggseqlogo")
 source("99_proj_func.R")
 ```
 
-Load augmented dataset from step 4
+### Load augmented dataset
 
 ```{r}
 tsv_file <- "../data/data_augmented.tsv"
 data_augmented <- read_tsv(tsv_file)
 ```
 
-## Group sequences by compound
+## 1. Multiple Sequence Alignment (MSA)
 
-Create a new dataset where the sequences from individual samples are joined in the same group if the organism degrade the same compound. Filter samples without sequence.
+### Group sequences by compound
+
+Create a new dataset where the sequences from individual samples are joined in the same group if the organism degrade the same compound. Filter samples without sequence. From now, all analysis are performed on groups based on compound degradation.
 
 ```{r}
 compound_lists <- data_augmented |>
@@ -40,7 +44,9 @@ compound_lists <- data_augmented |>
   summarise(ProteinSequences = list(Sequence))
 ```
 
-## Apply MSA on each compound
+### Apply MSA on each compound
+
+Perform a MSA on each comppound group. Only sequences shorter than 200 aa are taken
 
 ```{r}
 # Perform MSA on each list of sequences
@@ -49,9 +55,11 @@ aligned_compounds <- compound_lists |>
   mutate(MSA = map(ProteinSequences, ~msa(.x, type = "protein")))
 ```
 
-## Consensus sequence
+## 2. Phylogeny
 
-Extract consensus sequence from MSA and check the percentage of gaps and missing positions.
+### Consensus sequence
+
+Extract consensus sequence from MSA. Then, calculate the percentage of gaps and missing positions.
 
 ```{r}
 
@@ -61,7 +69,9 @@ aligned_compounds <- aligned_compounds |>
   
 ```
 
-Plot the percentages for each compound
+### Consensus sequence plot
+
+Plot the percentages for each consensus sequence
 
 ```{r}
 percentage_plot <- ggplot(aligned_compounds, aes(x = Compound_Name, y = percentage)) + 
@@ -75,7 +85,9 @@ ggsave("../results/percentage_consensus_seq.png", percentage_plot)
 percentage_plot
 ```
 
-## Aligned sequences
+We can see that most of consensus sequences are unknown because sequences differ too much between them. To check this, we perform a phylogeny analysis.
+
+### Aligned sequences
 
 We extract aligned sequences from MSA alignment to perform posterior analysis
 
@@ -85,7 +97,9 @@ aligned_compounds <- aligned_compounds |>
   mutate(aligned_sequences = map(aligned_sequences, ~map(.x, ~paste(.x, collapse = ""))))
 ```
 
-## Distance matrix
+### Distance matrix
+
+To create phylogeny trees, a distance matrix needs to be construct before using the aligned sequences extracted before.
 
 ```{r}
 aligned_compounds <- aligned_compounds |>
@@ -93,39 +107,66 @@ aligned_compounds <- aligned_compounds |>
   mutate(distance_matrix = map(distance_matrix, ~dist.alignment(.x, "identity")))
 ```
 
-## Phylogenetic trees
+### Phylogenetic trees
+
+Create a phylogenetic tree for all the compounds is computationally cost. Therefore, only one phylogenetic tree is created, the one belonging to Hexabromobiphenyl compound. We can see some by eye different clusters. Label numbers correspond to individual aligned sequences.
 
 ```{r}
-
 Hexabromobiphenyl_tree <- njs(aligned_compounds$distance_matrix[5][[1]])
 
 # Plot the tree
 plot(Hexabromobiphenyl_tree, main="Phylogenetic Tree of Hexabromobiphenyl", cex=0.5)
 ```
 
-## Core sequences
+## 3. Core sequence
 
-In order to make sequence logos on the core sequences, we need to calculate the best 9mer.
+As shown in part 2, most of the consensus sequence is missing because of the sequence difference, also shown in the phylogenetic trees. However, there are small parts of the alignment that can show information. Therefore, the core sequence of the alignment is extracted to do some analysis.
+
+### Consensus matrix
+
+In order to get the consensus sequence, first we need to score each position of the alignment. This involves two steps. Firstly, a consensus matrix is calculated, where you can see the aa count for each position. We take only the first 26 elements because the last 4 correspond to mismatching, gaps and partial matching.  
 
 ```{r}
 aligned_compounds <- aligned_compounds |>
   mutate(conMat = map(MSA, ~consensusMatrix(.x))) |>
+  mutate(conMat = map(conMat, ~(.x[1:26,])))
+```
+
+### 9-mer scoring
+
+Now we have the aa count for each position, we can calculate the best 9mer. This involves two steps. Firstly, we take the maximum count of one aminoacid for each position to get the score position. Then, we calculate the score of each 9mer summing the score for the 9 positions. Finally, we take the 9mer with the maximum score and we store its first position in the alignment in the column mer_position.
+
+```{r}
+aligned_compounds <- aligned_compounds |>
   mutate(mer_position = map(conMat, ~mer_position_function(.x)))
 ```
 
+### Core extraction
+
+We extract the core from aligned sequences using the mer_position and the following 8 positions.
+
 ```{r}
-#| warning: false
 aligned_compounds <- aligned_compounds |>
   mutate(core = map2(aligned_sequences, mer_position, ~map2(.x, rep(.y, length(.x)), ~str_sub(., .y, .y + 8)))) |>
   mutate(core = map(core, ~unlist(.x)))
+```
 
+## 4. Sequence logo
+
+Calculate the sequence logo using the core sequences
+
+```{r}
 aligned_compounds <- aligned_compounds |>
   mutate(seqlogo = map(core, ~ggseqlogo(.x, seq_type = "aa")))
 ```
 
+Print all sequence logos (one for each compound)
+
 ```{r}
 aligned_compounds$seqlogo
 ```
+
+Save the sequence logo corresponding to the compound Hexabromobiphenyl.
 
 ```{r}
 Hexabromobiphenyl_seqlogo <- aligned_compounds$seqlogo[5][[1]]
