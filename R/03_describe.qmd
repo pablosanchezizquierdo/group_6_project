@@ -7,8 +7,25 @@ editor: visual
 ## Import Clean Data
 
 ```{r}
+#| message: false
+library("tidyverse")
+#library("dplyr")
+#library("stringr")
+#library("tidyr")
+library("readxl")
+#library("purrr")
+library("Biostrings")
+library("msa")
+library("KEGGREST")
+library("ape")
+library("seqinr")
+library("ggseqlogo")
+library("quarto")
+
 # Read TSV file into a data frame
-data_clean <- read_delim("../data/data_clean.tsv", delim = "\t", show_col_types = FALSE)
+data_clean <- read_delim("../data/data_clean.tsv", 
+                         delim = "\t", 
+                         show_col_types = FALSE)
 
 ```
 
@@ -23,24 +40,33 @@ organism_percentages <- data_clean |>
   mutate(Percentage = n / sum(n) * 100)
 
 # Pie chart with organisms percentages 
-plot1 <- ggplot(organism_percentages, aes(x = "", y = Percentage, fill = Organism)) +
-  geom_bar(stat = "identity", width = 1) +
-  geom_text(aes(label = sprintf("%.1f%%", Percentage)),
+plot1 <- ggplot(organism_percentages, 
+                aes(x = "", 
+                    y = Percentage, 
+                    fill = Organism)) +
+  geom_bar(stat = "identity", 
+           width = 1) +
+  geom_text(aes(label = sprintf("%.1f%%", 
+                                Percentage)),
             position = position_stack(vjust = 0.5),
             vjust=c(0.0, -0.5, 0.75),
             hjust=c(0.0, 0.0, 0.1),
-            size = 3, color = "black") +
+            size = 3, 
+            color = "black") +
   coord_polar(theta = "y") +  # Convert to polar coordinates to put it in a pie chart
   labs(title = "Percentage Distribution of Organisms") +
   theme_minimal() +
   theme(axis.text = element_blank(),
         axis.title = element_blank(),
         panel.grid = element_blank()) 
-
+plot1
 
 # Save the plot as a PNG file
-ggsave("../results/organisms_distribution_plot.png", plot1, width = 10, height = 6, dpi = 300)
-
+ggsave("../results/organisms_distribution_plot.png", 
+       plot1, 
+       width = 10, 
+       height = 6, 
+       dpi = 300)
 ```
 
 We indeed, can sate that bacteria is definitely predominant in our data. Nonetheless, before discarding the other organisms we need to further explore our data since they might still be relevant.
@@ -53,31 +79,38 @@ In this section we want to explore whether there are organisms that affect some 
 
 ```{r}
 # Create a subset of the data for the current organism
-temp_bacteria_data <- data_clean  |>  filter(Organism == 'Bacteria') 
+temp_bacteria_data <- data_clean  |>  
+  filter(Organism == 'Bacteria') 
 
 # Plot bar chart of compounds against the current organism
-plot_bacteria_compound <- ggplot(temp_bacteria_data, aes(x = `Compound_Name`, fill = `Compound_Name`)) +
+plot_bacteria_compound <- ggplot(temp_bacteria_data, 
+                                 aes(x = `Compound_Name`, 
+                                     fill = `Compound_Name`)) +
   geom_bar(position = "dodge") +
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, position = position_dodge(0.9), size = 2) +  # Add count labels
-  labs(title = paste("Compounds Distribution -", "Becteria"), x = "Compound Name", y = "Count") +
+  geom_text(stat = "count", 
+            aes(label = ..count..), 
+            vjust = -0.5, 
+            position = position_dodge(0.9), 
+            size = 2) +  # Add count labels
+  labs(title = paste("Compounds Distribution -", 
+                     "Becteria"), 
+       x = "Compound Name", 
+       y = "Count") +
   theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 60, hjust = 1, size=6), # Rotate the xticks 60 degrees
-    axis.text.y = element_text(size=6),
-    plot.title = element_text(size = 10),
-    axis.title.x = element_text(size = 8),  
-    axis.title.y = element_text(size = 8),  
-    legend.position = "bottom",
-    legend.box = "vertical", 
-    legend.key.height = unit(0.5, "line"),  
-    legend.key.size = unit(0.05, "cm"),
-    legend.text = element_text(size = 6),  
-    legend.title = element_text(size = 7)  
-  ) +
+  theme(axis.text.x = element_text(angle = 60, 
+                                   hjust = 1, 
+                                   size=6), # Rotate the xticks 60 degrees
+        axis.text.y = element_text(size=6),
+        plot.title = element_text(size = 10),
+        axis.title.x = element_text(size = 8),  
+        axis.title.y = element_text(size = 8),  
+        legend.position = "bottom",
+        legend.box = "vertical", 
+        legend.key.height = unit(0.5, "line"),  
+        legend.key.size = unit(0.05, "cm"),
+        legend.text = element_text(size = 6),  
+        legend.title = element_text(size = 7)) +
   guides(fill = guide_legend(ncol = 5)) # We want the legend to have 5 cols
-
-# Save the current plot as a PNG file
-#ggsave(paste0("../results/", "bacteria_vs_compounds_distribution.png"), plot_bacteria_compound, width = 10, height = 6, dpi = 300)
 
 plot_bacteria_compound
 ```
@@ -88,25 +121,33 @@ In the plot we see that bacteria influence all compounds, yet certain compounds 
 
 ```{r}
 # Create a subset of the data for the eukaryota
-temp_eukaryota_data <- data_clean  |>  filter(Organism == 'Eukaryota') 
+temp_eukaryota_data <- data_clean  |>  
+  filter(Organism == 'Eukaryota') 
 
 # Plot bar chart of compounds against eukaryota
-plot_eukaryota_compound <- ggplot(temp_eukaryota_data, aes(x = `Compound_Name`, fill = `Compound_Name`)) +
+plot_eukaryota_compound <- ggplot(temp_eukaryota_data, 
+                                  aes(x = `Compound_Name`, 
+                                      fill = `Compound_Name`)) +
   geom_bar(position = "dodge") +
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, position = position_dodge(0.9), size = 3) +  # Add count labels
-  labs(title = paste("Compounds Distribution -", "Eukaryota"), x = "Compound Name", y = "Count") +
+  geom_text(stat = "count", 
+            aes(label = ..count..), 
+            vjust = -0.5, 
+            position = position_dodge(0.9), 
+            size = 3) +  # Add count labels
+  labs(title = paste("Compounds Distribution -", 
+                     "Eukaryota"), 
+       x = "Compound Name", 
+       y = "Count") +
   theme_minimal() +
-  theme(
-    legend.position = "bottom",
-    legend.box = "vertical", 
-    legend.key.height = unit(0.5, "line"),  
-    legend.key.size = unit(0.05, "cm"),
-    legend.text = element_text(size = 10),  
-    legend.title = element_text(size = 12)
-  )
+  theme(legend.position = "bottom",
+        legend.box = "vertical", 
+        legend.key.height = unit(0.5, 
+                                 "line"),  
+        legend.key.size = unit(0.05, 
+                               "cm"),
+        legend.text = element_text(size = 10),  
+        legend.title = element_text(size = 12))
 
-# Save the current plot as a PNG file
-#ggsave(paste0("../results/", "eukaryota_vs_compounds_distribution.png"), plot_eukaryota_compound, width = 10, height = 6, dpi = 300)
 plot_eukaryota_compound
 ```
 
@@ -116,58 +157,80 @@ Previously, we observed that eukaryota constituted a very small portion of the o
 
 ```{r}
 # Create a subset of the data for fungi
-temp_fungi_data <- data_clean  |>  filter(Organism == 'Fungi') 
+temp_fungi_data <- data_clean  |>  
+  filter(Organism == 'Fungi') 
 
 # Plot bar chart of compounds against the fungi
-plot_fungi_compound <- ggplot(temp_fungi_data, aes(x = `Compound_Name`, fill = `Compound_Name`)) +
+plot_fungi_compound <- ggplot(temp_fungi_data, 
+                              aes(x = `Compound_Name`, 
+                                  fill = `Compound_Name`)) +
   geom_bar(position = "dodge") +
-  geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, position = position_dodge(0.9), size = 3) +  # Add count labels
-  labs(title = paste("Compounds Distribution -", "Fungi"), x = "Compound Name", y = "Count") +
+  geom_text(stat = "count", 
+            aes(label = ..count..), 
+            vjust = -0.5, 
+            position = position_dodge(0.9), 
+            size = 3) +  # Add count labels
+  labs(title = paste("Compounds Distribution -", 
+                     "Fungi"), 
+       x = "Compound Name", 
+       y = "Count") +
   theme_minimal() +
-  theme(
-    legend.position = "bottom",
-    legend.box = "vertical",  
-    legend.key.height = unit(0.5, "line"),  
-    legend.key.size = unit(0.05, "cm"),
-    legend.text = element_text(size = 10),  
-    legend.title = element_text(size = 12)) +  
+  theme(axis.text.x = element_text(angle = 10, 
+                                   hjust = 1, 
+                                   size=6), # Rotate the xticks 60 degrees
+        legend.position = "bottom",
+        legend.box = "vertical",  
+        legend.key.height = unit(0.5, 
+                                "line"),  
+        legend.key.size = unit(0.05, 
+                               "cm"),
+        legend.text = element_text(size = 10),  
+        legend.title = element_text(size = 12)) +
   guides(fill = guide_legend(ncol = 1)) # We want the legend to have 1 cols
 
-# Save the current plot as a PNG file
-#ggsave(paste0("../results/", "fungi_vs_compounds_distribution.png"), plot_fungi_compound, width = 10, height = 6, dpi = 300)
 plot_fungi_compound
 ```
 
-We observe that fungi affect to three compounds. Nonetheless, bacteria also affect to those compounds. We would need more data to extract any conclusions, hence, from now on, we will focus on just analyzing bacteria data.
+We observe that fungi affects three compounds. Nonetheless, bacteria also affect those compounds. We would need more data to extract any conclusions, hence, from now on, we will focus on just analyzing bacteria data.
 
--   UPDATE DATA CLEAN WITH ONLY BACTERIA?
 
 ## Genes across different compounds
 
 ```{r}
 # Stacked bar plot of genes and compounds
-plot2 <- ggplot(data_clean, aes(x = `Compound_Name`, fill = `Encoding_Gene`)) +
+plot2 <- ggplot(data_clean, 
+                aes(x = `Compound_Name`, 
+                    fill = `Encoding_Gene`)) +
   geom_bar(position = "stack") +
-  labs(title = "Genes Count for Each Compound", x = "Compound Name", y = "Count") +
+  labs(title = "Genes Count for Each Compound", 
+       x = "Compound Name", 
+       y = "Count") +
   theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 60, hjust = 1, size=6), # Rotate the xticks 60 degrees
-    axis.text.y = element_text(size=6),
-    plot.title = element_text(size = 10),
-    axis.title.x = element_text(size = 8),  
-    axis.title.y = element_text(size = 8),  
-    legend.position = "bottom",
-    legend.box = "vertical",  # Arrange legend items vertically
-    legend.key.height = unit(0.5, "line"),  
-    legend.key.size = unit(0.05, "cm"),
-    legend.text = element_text(size = 6),  
-    legend.title = element_text(size = 7)  
-    ) +
+  theme(axis.text.x = element_text(angle = 60, 
+                                   hjust = 1, 
+                                   size=6), # Rotate the xticks 60 degrees
+        axis.text.y = element_text(size=6),
+        plot.title = element_text(size = 10),
+        axis.title.x = element_text(size = 8),  
+        axis.title.y = element_text(size = 8),  
+        legend.position = "bottom",
+        legend.box = "vertical",  # Arrange legend items vertically
+        legend.key.height = unit(0.5, 
+                                 "line"),  
+        legend.key.size = unit(0.05, 
+                               "cm"),
+        legend.text = element_text(size = 6),  
+        legend.title = element_text(size = 7)) +
   guides(fill = guide_legend(ncol = 12))  # We want the legend to have 12 cols
 
+plot2
 
 # Save the plot as a PNG file
-ggsave("../results/genes_vs_compounds_stacked_plot.png", plot2, width = 10, height = 6, dpi = 300)
+ggsave("../results/genes_vs_compounds_stacked_plot.png", 
+       plot2, 
+       width = 10, 
+       height = 6, 
+       dpi = 300)
 ```
 
 In the plot we cannot distinguish the genes properly for each compound. However, there is evident grouping of genes, which accounts for the distinct color variations we observe. We observe that these groups vary among compounds. Hence, for a more detailed analysis, we will incorporate a column with the KEGG orthology for each gene in section 04 (Augment). This addition will enable us, in section 05 (Analysis), to generate a similar plot directly using the KEGG orthologies. The goal is to examine whether any relationships exist between KEGG orthologies and compounds, as there are too many genes to get any conclusive result with only genes.
@@ -177,7 +240,8 @@ In the plot we cannot distinguish the genes properly for each compound. However,
 ```{r}
 # Create a new dataframe with a column indicating whether 'Uncultured' is present or not
 temp_uncultured <- data_clean |> 
-  mutate(Has_Uncultured = str_detect(`Strain_ID/Microorganism`, "Uncultured"))
+  mutate(Has_Uncultured = str_detect(`Strain_ID/Microorganism`, 
+                                     "Uncultured"))
 
 
 # Compute percentages for strings containing 'uncultured' and the ones that do not
@@ -189,28 +253,34 @@ percentage_table <- temp_uncultured |>
 
 # Reshape data for plotting
 percentage_table_long <- percentage_table |> 
-  pivot_longer(cols = c("Uncultured", "No_Uncultured"), names_to = "Category", values_to = "Percentage")
+  pivot_longer(cols = c("Uncultured", 
+                        "No_Uncultured"), 
+               names_to = "Category", 
+               values_to = "Percentage")
 
 # Pie chart
-uncult_nonuncult <- ggplot(percentage_table_long, aes(x = "", y = Percentage, fill = Category)) +
-  geom_bar(stat = "identity", width = 1, color = "white") +
-  geom_text(aes(label = sprintf("%.1f%%", Percentage)), position = position_stack(vjust = 0.5)) +
+uncult_nonuncult <- ggplot(percentage_table_long, 
+                           aes(x = "", 
+                               y = Percentage, 
+                               fill = Category)) +
+  geom_bar(stat = "identity", 
+           width = 1, 
+           color = "white") +
+  geom_text(aes(label = sprintf("%.1f%%", 
+                                Percentage)), 
+            position = position_stack(vjust = 0.5)) +
   coord_polar(theta = "y") +
   theme_minimal() +
-  labs(title = "Percentage of Strain ID/Microorganisms with and without 'Uncultured'",
+  labs(title = "Percentage of Strain ID/Microorganisms uncultured",
        fill = "Category",
        x = NULL,
        y = NULL) +
   theme(legend.position = "right")
 
-
-
-# Save the plot as a PNG file
-#ggsave("../results/uncultured_vs_nonuncultured_microorganisms.png", uncult_nonuncult, width = 10, height = 6, dpi = 300)
 uncult_nonuncult
 ```
 
--   EXPLAIN
+It is very interesting to see that many entries for the "Strain/Microorganism" variable contain the "uncultured" label. This points out the complexity of cultivating any type of organism. In many cases, it is not easy or worth it to cultivate an organism with the existing cultivation techniques. This can be seen in the graph, almost 35% of all entries correspond to organisms that have not been cultivated. 
 
 ## Heat map of Organisms at each Country
 ```{r}
@@ -224,7 +294,8 @@ world_map_plot <- data_clean |>
   filter(Organism == "Bacteria") |> 
   select(Country) |> 
   group_by(Country) |> 
-  summarise(log10Count = log(n(), 10)) |>     # We need to do log(,10) since Canada has way many 
+  summarise(log10Count = log(n(), 
+                             10)) |>     # We need to do log(,10) since Canada has way many 
   dplyr::rename("region" = "Country")    # We need to rename the variable for the latter join
 
 # Now we join the world data set (comes with the R package already) with our dataset:
@@ -259,7 +330,11 @@ plot7 <- ggplot(data = worldSubset,
 
 plot7
 
-ggsave("../results/heat_map_of_bacteria_at_each_country.png", plot7, width = 10, height = 6, dpi = 300)
+ggsave("../results/heat_map_of_bacteria_at_each_country.png", 
+       plot7, 
+       width = 10, 
+       height = 6, 
+       dpi = 300)
 ```
 
 
