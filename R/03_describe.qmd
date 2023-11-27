@@ -8,7 +8,7 @@ editor: visual
 
 ```{r}
 # Read TSV file into a data frame
-data_clean <- read_delim("../data/clean_data.tsv", delim = "\t", show_col_types = FALSE)
+data_clean <- read_delim("../data/data_clean.tsv", delim = "\t", show_col_types = FALSE)
 
 ```
 
@@ -19,7 +19,7 @@ In this section we want to inspect the distribution of organisms across the data
 ```{r}
 # Calculate percentages of organisms
 organism_percentages <- data_clean |> 
-  count(Organism) |> 
+  dplyr::count(Organism) |> 
   mutate(Percentage = n / sum(n) * 100)
 
 # Pie chart with organisms percentages 
@@ -56,7 +56,7 @@ In this section we want to explore whether there are organisms that affect some 
 temp_bacteria_data <- data_clean  |>  filter(Organism == 'Bacteria') 
 
 # Plot bar chart of compounds against the current organism
-plot_bacteria_compound <- ggplot(temp_bacteria_data, aes(x = `Compound Name`, fill = `Compound Name`)) +
+plot_bacteria_compound <- ggplot(temp_bacteria_data, aes(x = `Compound_Name`, fill = `Compound_Name`)) +
   geom_bar(position = "dodge") +
   geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, position = position_dodge(0.9), size = 2) +  # Add count labels
   labs(title = paste("Compounds Distribution -", "Becteria"), x = "Compound Name", y = "Count") +
@@ -90,7 +90,7 @@ In the plot we see that bacteria influence all compounds, yet certain compounds 
 temp_eukaryota_data <- data_clean  |>  filter(Organism == 'Eukaryota') 
 
 # Plot bar chart of compounds against eukaryota
-plot_eukaryota_compound <- ggplot(temp_eukaryota_data, aes(x = `Compound Name`, fill = `Compound Name`)) +
+plot_eukaryota_compound <- ggplot(temp_eukaryota_data, aes(x = `Compound_Name`, fill = `Compound_Name`)) +
   geom_bar(position = "dodge") +
   geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, position = position_dodge(0.9), size = 3) +  # Add count labels
   labs(title = paste("Compounds Distribution -", "Eukaryota"), x = "Compound Name", y = "Count") +
@@ -118,7 +118,7 @@ Previously, we observed that eukaryota constituted a very small portion of the o
 temp_fungi_data <- data_clean  |>  filter(Organism == 'Fungi') 
 
 # Plot bar chart of compounds against the fungi
-plot_fungi_compound <- ggplot(temp_fungi_data, aes(x = `Compound Name`, fill = `Compound Name`)) +
+plot_fungi_compound <- ggplot(temp_fungi_data, aes(x = `Compound_Name`, fill = `Compound_Name`)) +
   geom_bar(position = "dodge") +
   geom_text(stat = "count", aes(label = ..count..), vjust = -0.5, position = position_dodge(0.9), size = 3) +  # Add count labels
   labs(title = paste("Compounds Distribution -", "Fungi"), x = "Compound Name", y = "Count") +
@@ -144,7 +144,7 @@ We observe that fungi affect to three compounds. Nonetheless, bacteria also affe
 
 ```{r}
 # Stacked bar plot of genes and compounds
-plot2 <- ggplot(data_clean, aes(x = `Compound Name`, fill = `Encoding Gene`)) +
+plot2 <- ggplot(data_clean, aes(x = `Compound_Name`, fill = `Encoding_Gene`)) +
   geom_bar(position = "stack") +
   labs(title = "Genes Count for Each Compound", x = "Compound Name", y = "Count") +
   theme_minimal() +
@@ -175,7 +175,7 @@ In the plot we cannot distinguish the genes properly for each compound. However,
 ```{r}
 # Create a new dataframe with a column indicating whether 'Uncultured' is present or not
 temp_uncultured <- data_clean |> 
-  mutate(Has_Uncultured = str_detect(`Strain ID/Microorganism`, "Uncultured"))
+  mutate(Has_Uncultured = str_detect(`Strain_ID/Microorganism`, "Uncultured"))
 
 
 # Compute percentages for strings containing 'uncultured' and the ones that do not
@@ -286,6 +286,7 @@ ggsave("../results/countries_and_continents_vs_organisms_stacked_plot.png", plot
 
 ```{r}
 library(maps)
+world <- map_data("world")
 world_map_plot <- as.data.frame(select(only_bacteria_data, Country))
 world_map_plot <- count(world_map_plot, Country)
 names(world_map_plot)[names(world_map_plot) == "n"] <- "Count"
@@ -293,8 +294,12 @@ names(world_map_plot)[names(world_map_plot) == "Country"] <- "region"
 
 Count <- as.numeric(as.character(world_map_plot$Count))
 
+world_map_plot_no_canada <- filter(world_map_plot, region != "Canada")
+
+
 diff <- setdiff(world$region, world_map_plot$region)
 worldSubset <- inner_join(world, world_map_plot, by = "region")
+worldSubset2 <- inner_join(world, world_map_plot_no_canada, by = "region")
 
 plain <- theme(
   axis.text = element_blank(),
@@ -306,16 +311,85 @@ plain <- theme(
   panel.background = element_rect(fill = "white"),
   plot.title = element_text(hjust = 0.5)
 )
-worldHDI <- ggplot(data = worldSubset, mapping = aes(x = long, y = lat, group = group)) + 
+plot7 <- ggplot(data = worldSubset, mapping = aes(x = long, y = lat, group = group)) + 
   geom_polygon(aes(fill = Count)) +  
   coord_fixed(1.3) +
   scale_fill_distiller(palette ="RdBu", direction = -1) + # or direction=1
-  ggtitle("Bacteria count around the countries") +
-  plain
+  plain +
+  theme(legend.position = "bottom")+
+  ggtitle("With Canada")
+plot7
 
-worldHDI
+plot8 <- ggplot(data = worldSubset2, mapping = aes(x = long, y = lat, group = group)) + 
+  geom_polygon(aes(fill = Count)) +  
+  coord_fixed(1.3) +
+  scale_fill_distiller(palette ="RdBu", direction = -1) +
+  plain +
+  ggtitle("Without Canada")
+
+plot8
+
+library(patchwork)
+
+combined_plot <- plot7 + plot8 +
+  plot_layout(ncol = 2)+
+  plot_annotation("Bacteria distribution around the world",
+                  theme = theme(plot.title = element_text(size = 16)))+
+  theme(legend.position = "bottom")
+
+combined_plot
+
+ggsave("../results/heat_map_of_bacteria_at_each_country.png", combined_plot, width = 10, height = 6, dpi = 300)
 ```
 
-## Heat map of Organisms at each Continent
+## Heat map of Bacteria at each Continent
 
--   ALGU S'ANIMA?
+-   ALGU S'ANIMA
+
+```{r Marina}
+library(maps)
+world <- map_data("world")
+world_map_plot_continent <- as.data.frame(select(only_bacteria_data, correct_continent))
+world_map_plot_continent <- count(world_map_plot_continent, correct_continent)
+names(world_map_plot_continent)[names(world_map_plot_continent) == "n"] <- "Count"
+names(world_map_plot_continent)[names(world_map_plot_continent) == "correct_continent"] <- "continent"
+
+Count <- as.numeric(as.character(world_map_plot_continent$Count))
+
+world$continent <- rep(NA, length = nrow(world))
+
+world$continent[which(grepl("Mediterranean Sea|Greenland|Albania|Andorra|Austria|Belarus|Belgium|Bosnia and Herzegovina|Bulgaria|Croatia|Cyprus|Czech Republic|Denmark|Estonia|Finland|France|Germany|Greece|Hungary|Iceland|Ireland|Italy|Kosovo|Latvia|Liechtenstein|Lithuania|Luxembourg|Malta|Moldova|Monaco|Montenegro|Netherlands|North Macedonia|Norway|Poland|Portugal|Romania|Russia| San Marino|Serbia|Slovakia|Slovenia|Spain|Sweden|Switzerland|Ukraine|United Kingdom|Vatican City", world$region))] <- "Europe"
+
+world$continent[which(grepl("Algeria|Angola|Benin|Botswana|Burkina Faso|Burundi|Cabo Verde|Cameroon|Central African Republic|Chad|Comoros|Democratic Republic of the Congo|Djibouti|Egypt|Equatorial Guinea|Eritrea|Eswatini (formerly Swaziland)|Ethiopia|Gabon|Gambia|Ghana|Guinea|Guinea-Bissau|Ivory Coast|Kenya|Lesotho|Liberia|Libya|Madagascar|Malawi|Mali|Mauritania|Mauritius|Morocco|Mozambique|Namibia|Niger|Nigeria|Rwanda|Sao Tome and Principe|Senegal|Seychelles|Sierra Leone|Somalia|South Africa|South Sudan|Sudan|Tanzania|Togo|Tunisia|Uganda|Zambia|Zimbabwe", world$region))] <- "Africa"
+
+world$continent[which(grepl("USA|Canada|Peru|Brazil|America|Venezuela|Panama|Mexico|Chile|French Guiana|Argentina|Colombia|Paraguay|Cuba|Dominican Republic|Uruguay|Ecuador|Bolivia|French Guiana|Nicaragua|Honduras|Guatemala|El Salvador|Belize|Haiti|Costa Rica|Surinam|Guyana", world$region))] <- "America"
+
+world$continent[which(grepl("Australia|Fiji|Kiribati|Marshall Islands|Micronesia |Nauru|New Zealand|Palau|Papua New Guinea|Samoa|Solomon Islands|Tonga|Tuvalu|Vanuatu", world$Country))] <- "Oceania"
+
+world$continent[which(grepl("Afghanistan|Armenia|Azerbaijan|Bahrain|Bangladesh|Bhutan|Brunei|Cambodia|China|Cyprus|Georgia|India|Indonesia|Iran|Iraq|Israel|Japan|Jordan|Kazakhstan|Kuwait|Kyrgyzstan|Laos|Lebanon|Malaysia|Maldives|Mongolia|Myanmar|Nepal|North Korea|Oman|Pakistan|Palestine|Philippines|Qatar|Saudi Arabia|Singapore|South Korea|Sri Lanka|Syria|Taiwan|Tajikistan|Thailand|Timor-Leste|Turkey|Turkmenistan|United Arab Emirates|Uzbekistan|Vietnam|Yemen", world$region))] <- "Asia"
+
+world$continent[which(grepl("Antartica|South Shetland Islands", world$region))] <- "Antartica"
+
+diff <- setdiff(world$continent, world_map_plot_continent$continent)
+worldSubset_continent <- inner_join(world, world_map_plot_continent, by = "continent")
+
+plain <- theme(
+  axis.text = element_blank(),
+  axis.line = element_blank(),
+  axis.ticks = element_blank(),
+  panel.border = element_blank(),
+  panel.grid = element_blank(),
+  axis.title = element_blank(),
+  panel.background = element_rect(fill = "grey80"),
+  plot.title = element_text(hjust = 0.5)
+)
+plot9 <- ggplot(data = worldSubset_continent, mapping = aes(x = long, y = lat, group = group)) + 
+  geom_polygon(aes(fill = Count)) +  
+  coord_fixed(1.3) +
+  scale_fill_distiller(palette ="RdBu", direction = -1) + # or direction=1
+  plain +
+  ggtitle("Heat map of Bacteria at each Continent")
+plot9
+
+ggsave("../results/heat_map_of_bacteria_at_each_continent.png", plot9, width = 10, height = 6, dpi = 300)
+```

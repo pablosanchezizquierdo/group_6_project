@@ -17,6 +17,9 @@ library("readxl")
 library("Biostrings")
 library("msa")
 library("KEGGREST")
+library("ape")
+library("seqinr")
+library("ggseqlogo")
 ```
 
 # Creating directories
