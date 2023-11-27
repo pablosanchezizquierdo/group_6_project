@@ -9,7 +9,9 @@ editor: visual
 # Sequence analysis
 
 ## Load libraries:
+
 ```{r}
+library("tidyverse")
 library("msa")
 library("ape")
 library("seqinr")
@@ -104,87 +106,6 @@ phylo_tree <- njs(aligned_compounds$distance_matrix[6][[1]])
 plot(phylo_tree, main="Phylogenetic Tree of a compound example", cex=0.5)
 
 ```
-
-## Clustering
-
-### Calculate clusters
-
-```{r}
-clusters_vector <- list(
-  c("5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","4","4","4","4","4","4","4","4","3","3","3","3","3","3","4","4","4","4","2","2","2","2","2","2","4","4","4","4","4","4","1","1","1","1","1","1","1","1","1","1","2","2","2","2","2","2","2","2","2","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5","5"),
-  c("6","6","6","6","6","6","6","6","6","6","6","7","7","7","7","7","7","7","7","7","7","7","7","7","8","8","8","8","8","8"),
-  c("9","10"),
-  c("11","11","11","11","11","11","11","11","11","11","11","12","12","12","12","12","12","12","12","12","12","12","12","12","13","13","13","13","13","13"),
-  c("14","14","14","14","14","14","14","15","15","15","15","16","16","16","16","16","16","16","17","17","17","17","17","17","18","18","18","18"),
-  c("19","19","19","19","19","19","19","19","19","19","19","19","19","19","19","20","20","20","20","20","20","20","20","20","20","20","20","20","20","20","21","21","21","21","21","21","21","21","21","21","21","21","21","21","21","22","22","22","22","22","22","22","22","22","22","22","22","22","22","22","22"),
-  c("23","23","23","23","23","23","23","23","23","23","23","24","24","24","24","24","24","24","24","24","24","24","24","24","25","25","25","25","25","25"),
-  c("26","26","27","28"),
-  c("72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","71","71","71","71","71","71","71","71","70","70","70","70","70","70","71","71","71","71","69","69","69","69","69","69","71","71","71","71","71","71","68","68","68","68","68","68","68","68","68","68","69","69","69","69","69","69","69","69","69","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72","72"),
-  c("35","35","35","35","35","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","36","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","34","37","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35","35"),
-  c("41","41","41","41","41","41","41","41","38","38","38","38","38","39","39","39","39","39","40","40","40","40","40","40"),
-  c("42","42","42","43","43","44","44","44","44","44","43","45","45","45","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46","46"),
-  c("73","73","73","74","74","75","75","75","75","75","74","76","76","76","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77","77"),
-  c("47","47","47","48","48","48","49","49","50","49","51","51","52","52","52","49","52","51"),
-  c("53","53","54","54","54","54","54","54","54","54","54","54","54","54","54","54","54","54","54","53","53","53","53","53","53","53","53","53","53","53","53","53","53","53","53","53","55","55","56","56","56","56","56","56","56","53","53","55","53","55","57","53","55","58","54","55","53"),
-  c("59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","59","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","60","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61","61"),
-  c("62","62","63"),
-  c("65","65","65","65","65","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","66","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","64","67","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65","65"))
-
-aligned_compounds$clusters <- clusters_vector
-
-vector_1 <- as.character(1:72)
-vector_2 <- c("Beta-1,2,3,4,5,6-Hexachlorocyclohexane_1","Beta-1,2,3,4,5,6-Hexachlorocyclohexane_2","Beta-1,2,3,4,5,6-Hexachlorocyclohexane_3","Beta-1,2,3,4,5,6-Hexachlorocyclohexane_4","Beta-1,2,3,4,5,6-Hexachlorocyclohexane_5","Decabromodiphenyl ether_1","Decabromodiphenyl_ether_2","Decabromodiphenyl_ether_3","Endosulfan_1","Endosulfan_2","Heptabromodiphenyl_ether_1","Heptabromodiphenyl_ether_2","Heptabromodiphenyl_ether_3","Hexabromobiphenyl_1","Hexabromobiphenyl_2","Hexabromobiphenyl_3","Hexabromobiphenyl_4","Hexabromobiphenyl_5","	
-Hexabromocyclododecane_1","	
-Hexabromocyclododecane_2","	
-Hexabromocyclododecane_3","Hexabromocyclododecane_4","Hexabromodiphenyl_ether_1","Hexabromodiphenyl_ether_2","Hexabromodiphenyl_ether_3","Hexachlorobenzene_(HCB)_1","Hexachlorobenzene_(HCB)_2","Hexachlorobenzene_(HCB)_3","Lindane_1","Lindane_2","Lindane_3","Lindane_4","Pentabromodiphenyl_ether_1","Pentabromodiphenyl_ether_2","Pentabromodiphenyl_ether_3","Pentabromodiphenyl_ether_4","Pentachlorbenzene_1","Pentachlorbenzene_2","Pentachlorbenzene_3","Pentachlorbenzene_4","Perfluorooctane_Sulfonate_(PFOS)_1","Perfluorooctane_Sulfonate_(PFOS)_2","Perfluorooctane_Sulfonate_(PFOS)_3","Perfluorooctane_Sulfonate_(PFOS)_4","Perfluorooctane_Sulfonate_(PFOS)_5","Perfluorooctanoic_Acid_(PFOA)_1","Perfluorooctanoic_Acid_(PFOA)_2","Perfluorooctanoic_Acid (PFOA)_3","Perfluorooctanoic_Acid (PFOA)_4","Perfluorooctanoic_Acid (PFOA)_5","	
-Polychlorinated_dibenzo-p-dioxins_(PCDD)_1","	
-Polychlorinated_dibenzo-p-dioxins_(PCDD)_2","	
-Polychlorinated_dibenzo-p-dioxins_(PCDD)_3","	
-Polychlorinated_dibenzo-p-dioxins_(PCDD)_4","	
-Polychlorinated_dibenzo-p-dioxins_(PCDD)_5","	
-Polychlorinated_dibenzo-p-dioxins_(PCDD)_6","Polychlorinated_dibenzofurans_(PCDF)_1","Polychlorinated_dibenzofurans_(PCDF)_2","Polychlorinated_dibenzofurans_(PCDF)_3","Polychlorinated_dibenzofurans_(PCDF)_4","Polychlorinated_dibenzofurans_(PCDF)_5","Polychlorinated_dibenzofurans_(PCDF)_6","Polychlorinated_naphthalenes_1","Polychlorinated_naphthalenes_2","Polychlorinated_naphthalenes_3","Short-Chain_Chlorinated_paraffins_(SCCPs)_1","Short-Chain_Chlorinated_paraffins_(SCCPs)_2","Tetrabromodiphenyl_ether_1","Tetrabromodiphenyl_ether_2","Tetrabromodiphenyl_ether_3","Tetrabromodiphenyl_ether_4","Tetrabromodiphenyl_ether_5")
-```
-
-```{r}
-#clusters_compounds <- data.frame()
-# Creating a new DataFrame with 52 rows
-clusters_compounds <- data.frame(clusters = rep(NA, 72))
-clusters_compounds$clusters <- vector_1
-clusters_compounds$Compound_Name <- vector_2
-```
-
-### Using clusters, unnest the individual protein sequences and join again
-
-```{r}
-aligned_compounds_clusters <- aligned_compounds |>
-  mutate(row = row_number()) |>
-  unnest(c(ProteinSequences, clusters))
-```
-
-```{r}
-# Split the dataset based on compound name
-aligned_compounds_clusters <- aligned_compounds_clusters |>
-  group_by(clusters) |> 
-  summarise(
-    ProteinSequences = list(ProteinSequences)
-  )
-
-aligned_compounds_clusters$clusters <- unlist(aligned_compounds_clusters$clusters)
-```
-
-
-```{r}
-aligned_compounds_clusters <- left_join(aligned_compounds_clusters, clusters_compounds, by = "clusters")
-```
-
-## Recalculate MSA for clusters
-
-```{r}
-# Perform MSA on each list of sequences
-#aligned_compounds_clusters <- aligned_compounds_clusters |> 
-  #mutate(MSA = map(ProteinSequences, ~msa(.x, type = "protein")))
-```
-
 
 
 ## Core sequences

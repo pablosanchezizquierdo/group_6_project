@@ -9,7 +9,7 @@ editor: visual
 ```{r}
 #| message: false
 library("tidyverse")
-library("readx1")
+library("readxl")
 ```
 
 
