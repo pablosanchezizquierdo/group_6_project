@@ -89,8 +89,7 @@ pathway_barplot <- ggplot(pathway_counts, aes(x = Pathway, y = n, fill = n)) +
   guides(fill = guide_colourbar(title = "Count")) + # Add a colorbar guide
   scale_y_continuous(limits = c(0, 15)) # Set y-axis limits
 
-# Save the barplot to a file
-pathway_barplot
+ggsave("../results/compound_pathways_plot.png", pathway_barplot, width = 12, height = 8, units = "in")
 ```
 
 In this graphic we can see that the most used pathways are the chlorocyclohexane and chlorobenzene degradation and the benzoate degradation. In the future, this information can be used to find new organisms that are able to biodegrade this compounds, we only need to search more organisms that are involved in this pathways. Also, it means that all the compounds that we want to biodegrade are very rich in this compounds.
