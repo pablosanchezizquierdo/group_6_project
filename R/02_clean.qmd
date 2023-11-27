@@ -35,7 +35,6 @@ columns_to_keep <- c("Compound Name",
 # Subset the 'data' data frame to keep only the specified columns
 data_reduced <- data |> 
   select(all_of(columns_to_keep))
-
 ```
 
 ## Visualize how many NA values we have

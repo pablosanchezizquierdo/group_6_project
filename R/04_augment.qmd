@@ -13,6 +13,7 @@ Protein sequences extracted from the raw fasta file "protein_seqs.fasta" are add
 ## Load clean dataset from step 2
 
 ```{r}
+#| warning: false
 tsv_file <- "../data/data_clean.tsv"
 data_clean <- read_tsv(tsv_file)
 ```
@@ -91,3 +92,4 @@ if (file.exists(output_file_path)) {
   cat("Failed to save the data with selected columns to", output_file_path, "\n")
 }
 ```
+
